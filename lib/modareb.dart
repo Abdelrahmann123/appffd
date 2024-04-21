@@ -29,14 +29,15 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
           },
         ),
         title: Text('Display Trainers'),
-        actions: [
-
-        ],
+        actions: [],
       ),
       body: Column(
         children: [
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8), // تحديد المسافات من اليمين واليسار والأعلى والأسفل
+            margin: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical:
+                8), // تحديد المسافات من اليمين واليسار والأعلى والأسفل
             child: Row(
               children: [
                 Expanded(
@@ -96,7 +97,8 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
                 return ListView.builder(
                   itemCount: filteredTrainers.length,
                   itemBuilder: (context, index) {
-                    var trainer = filteredTrainers[index].data()! as Map<String, dynamic>;
+                    var trainer =
+                    filteredTrainers[index].data()! as Map<String, dynamic>;
                     return TrainerCard(
                       trainer: trainer,
                     );
@@ -137,9 +139,27 @@ class TrainerCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (trainer['profileImage'] != null)
-                CircleAvatar(
-                  backgroundImage: NetworkImage(trainer['profileImage']),
-                  radius: 50,
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 3,
+                        blurRadius: 7,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.network(
+                      trainer['profileImage'],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               SizedBox(height: 10),
               Text(
@@ -187,39 +207,162 @@ class TrainerDetailsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Trainer Details'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (trainer['profileImage'] != null)
-            Image.network(
-              trainer['profileImage'],
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          SizedBox(height: 20),
-          Text('Name: ${trainer['name']}'),
-          Text('Experience: ${trainer['experience']} years'),
-          Text('Age: ${trainer['age']}'),
-          Text('Sport: ${trainer['sport']}'),
-          // Subscription button
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return Buy();
-                    },
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (trainer['profileImage'] != null)
+              Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 3,
+                      blurRadius: 7,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.network(
+                    trainer['profileImage'],
+                    fit: BoxFit.cover,
                   ),
-                );
-              },
-              child: Text('Subscribe'),
+                ),
+              ),
+            SizedBox(height: 20),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                border:
+                Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    Text(
+                      'Name: ',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '${trainer['name']}',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                border:
+                Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    Text(
+                      'Experience: ',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '${trainer['experience']} years',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                border:
+                Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    Text(
+                      'Age: ',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '${trainer['age']}',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                border:
+                Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    Text(
+                      'Sport: ',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '${trainer['sport']}',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return Buy();
+                        },
+                      ),
+                    );
+                  },
+                  child: Text('Subscribe'),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

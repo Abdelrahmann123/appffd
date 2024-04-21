@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:untitled17/screens/vod.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'BookingScreen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PlaygroundDetailsPage extends StatelessWidget {
   final Map<String, dynamic> playgroundData;
@@ -11,7 +11,6 @@ class PlaygroundDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Check if playgroundData is not null and contains data
     if (playgroundData == null || playgroundData.isEmpty) {
       return Scaffold(
         appBar: AppBar(
@@ -36,7 +35,7 @@ class PlaygroundDetailsPage extends StatelessWidget {
               width: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(playgroundData['imageUrl']),
+                  image: NetworkImage(playgroundData['imageUrl'][0]), // استخدام أول صورة من المصفوفة imageUrl
                   fit: BoxFit.cover,
                 ),
               ),
@@ -49,26 +48,20 @@ class PlaygroundDetailsPage extends StatelessWidget {
                   SizedBox(height: 16),
                   _buildDetail('Name:', playgroundData['name']),
                   _buildDetail('Price:', playgroundData['price']),
-                  _buildDetail('Governorate:', playgroundData['governorate']),
-                  _buildDetail('City:', playgroundData['city']),
-                  _buildDetail('Street:', playgroundData['street']),
+                  _buildDetail('Lockers:', playgroundData['lockers']),
+                  _buildDetail('Open Time:', playgroundData['openTime']),
+                  _buildDetail('Close Time:', playgroundData['closeTime']),
                   SizedBox(height: 16),
                   _buildLocationButton('Location', playgroundData['location']),
                   SizedBox(height: 16),
-                  _buildDetail('Sport Type:', playgroundData['sportType']),
+                  _buildDetail('Sport Type:', playgroundData['type']),
                   SizedBox(height: 16),
-                  _buildDetail('Description:', playgroundData['description']),
+                  _buildDetail('Description:', playgroundData['stadiumDetails']),
                   SizedBox(height: 16),
 
-                  // Booking Button
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => InteractiveCalendarScreen(),
-                        ),
-                      );
+                      _bookPlayground(context); // استدعاء الدالة المحدثة لحجز الملعب
                     },
                     child: Text('Book Playground'),
                   ),
@@ -84,9 +77,8 @@ class PlaygroundDetailsPage extends StatelessWidget {
   }
 
   Widget _buildDetail(String label, dynamic data) {
-    // Check if data is not null before displaying
     if (data == null) {
-      return Container(); // Return an empty container or customize as needed
+      return Container();
     }
 
     return Column(
@@ -146,5 +138,12 @@ class PlaygroundDetailsPage extends StatelessWidget {
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  void _bookPlayground(BuildContext context) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => VodafonePlayground()),
+    );
   }
 }

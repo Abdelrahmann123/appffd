@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-
-
 import 'package:carousel_slider/carousel_slider.dart';
-
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/services.dart';
-
+import 'package:untitled17/playground.dart';
+import 'package:untitled17/profhome.dart';
+import 'package:untitled17/screens/playdet.dart';
 import 'package:untitled17/screens/side_menu.dart';
-
 import '../events.dart';
-
+import '../fav.dart';
 import '../modareb.dart';
-import '../playground.dart';
+import '../notif.dart';
 import '../pro.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,7 +22,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   double xoffset = 0;
   double yoffset = 0;
-
   bool isDrawerOpen = false;
 
   @override
@@ -33,10 +30,8 @@ class _HomePageState extends State<HomePage> {
 
     return WillPopScope(
       onWillPop: () async {
-        // عند الضغط على زر الرجوع
-        // قم بإغلاق التطبيق
         SystemNavigator.pop();
-        return true; // ترجيع قيمة true للسماح بالعملية
+        return true;
       },
       child: Scaffold(
         backgroundColor: Color(0xffF5F5F5),
@@ -45,8 +40,27 @@ class _HomePageState extends State<HomePage> {
           color: Color.fromARGB(255, 209, 212, 217),
           animationDuration: Duration(milliseconds: 300),
           onTap: (index) {
-            setState(() {});
+            if (index == 1) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => FavoritesPage(),
+                ),
+              );
+            } else if (index == 2) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => NotificationsPage(),
+                ),
+              );
+            } else if (index == 3) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ProfilePage(),
+                ),
+              );
+            }
           },
+          index: 0,
           items: [
             Icon(
               Icons.home,
@@ -69,6 +83,7 @@ class _HomePageState extends State<HomePage> {
         drawer: SideMenu(),
         body: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Stack(
                 children: [
@@ -96,13 +111,13 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SingleChildScrollView(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         AppBar(
                           backgroundColor: Color.fromARGB(255, 221, 225, 231),
                           iconTheme: IconThemeData.fallback(),
                           title: Container(
-                            margin:
-                            const EdgeInsets.symmetric(horizontal: 20),
+                            margin: const EdgeInsets.symmetric(horizontal: 20),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
@@ -112,7 +127,8 @@ class _HomePageState extends State<HomePage> {
                                       borderRadius: BorderRadius.circular(20),
                                       child: const Image(
                                         fit: BoxFit.cover,
-                                        image: AssetImage('images/spooooortttt.png'),
+                                        image: AssetImage(
+                                            'images/spooooortttt.png'),
                                       ),
                                     ),
                                   ),
@@ -121,14 +137,13 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                         const SizedBox(
                           height: 10,
                         ),
-                        ////0000000000000000000000000000000000000000000000000000000000000000000000
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: 15),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: <Widget>[
                               SizedBox(
                                 height: 10,
@@ -161,7 +176,8 @@ class _HomePageState extends State<HomePage> {
                                       );
                                     },
                                     child: NewPadding(
-                                      image: 'images/Fitness_couple_running_vector_image_on_VectorStock-removebg-preview.png',
+                                      image:
+                                      'images/Fitness_couple_running_vector_image_on_VectorStock-removebg-preview.png',
                                       text: 'Events',
                                     ),
                                   ),
@@ -176,7 +192,8 @@ class _HomePageState extends State<HomePage> {
                                       );
                                     },
                                     child: NewPadding(
-                                      image: 'images/3a523d32-8218-4bb6-b3bb-a02b56bd7e58-removebg-preview.png',
+                                      image:
+                                      'images/3a523d32-8218-4bb6-b3bb-a02b56bd7e58-removebg-preview.png',
                                       text: 'Playground',
                                     ),
                                   ),
@@ -200,7 +217,8 @@ class _HomePageState extends State<HomePage> {
                                       );
                                     },
                                     child: NewPadding(
-                                      image: 'images/WhatsApp_Image_2023-12-13_at_10.33.02_PM-removebg-preview.png',
+                                      image:
+                                      'images/WhatsApp_Image_2023-12-13_at_10.33.02_PM-removebg-preview.png',
                                       text: 'Trainers',
                                     ),
                                   ),
@@ -215,7 +233,8 @@ class _HomePageState extends State<HomePage> {
                                       );
                                     },
                                     child: NewPadding(
-                                      image: 'images/ea819bf4-ebaf-49d0-9acd-60d8f0ee9aad-removebg-preview.png',
+                                      image:
+                                      'images/ea819bf4-ebaf-49d0-9acd-60d8f0ee9aad-removebg-preview.png',
                                       text: 'Swap',
                                     ),
                                   ),
@@ -250,40 +269,41 @@ class NewPadding extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Stack(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.4,
-                height: 125,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  image: DecorationImage(
-                    image: AssetImage(image),
-                    fit: BoxFit.fill,
-                  ),
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Stack(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width * 0.4,
+              height: 125,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                image: DecorationImage(
+                  image: AssetImage(image),
+                  fit: BoxFit.fill,
                 ),
               ),
-              Container(
-                width: 83,
-                height: 25,
-                color: Color(0xffF5F5F5),
-                margin: EdgeInsets.only(top: 125, left: 34, bottom: 25),
-                child: Center(
-                  child: Text(
-                    text,
-                    style: const TextStyle(
-                        color: Colors.black87,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        decoration: TextDecoration.none),
-                  ),
+            ),
+            Container(
+              width: 83,
+              height: 25,
+              color: Color(0xffF5F5F5),
+              margin: EdgeInsets.only(top: 125, left: 34, bottom: 25),
+              child: Center(
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      decoration: TextDecoration.none),
                 ),
               ),
-            ],
-          ),
-        ]);
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled17/swap.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'main.dart';
 
@@ -28,100 +29,40 @@ class _DisplayProductsPageState extends State<DisplayProductsPage> {
           'Swap sports tools',
           style: TextStyle(color: Colors.black),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              _searchController.clear();
-            },
-            icon: Icon(Icons.clear),
-          ),
-        ],
       ),
       body: Column(
         children: [
           SearchBar(), // استدعاء الـ SearchBar هنا
-          StreamBuilder(
-            stream: FirebaseFirestore.instance.collection('products').snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (!snapshot.hasData) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
+          Expanded(
+            child: StreamBuilder(
+              stream:
+              FirebaseFirestore.instance.collection('products').snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
 
-              var products = snapshot.data!.docs;
+                var products = snapshot.data!.docs;
 
-              var filteredProducts = products.where((product) {
-                var productName = product['name'].toString().toLowerCase();
-                var searchQuery = _searchController.text.toLowerCase();
-                return productName.contains(searchQuery);
-              }).toList();
+                var filteredProducts = products.where((product) {
+                  var productName = product['name'].toString().toLowerCase();
+                  var searchQuery = _searchController.text.toLowerCase();
+                  return productName.contains(searchQuery);
+                }).toList();
 
-              return Expanded(
-                child: ListView.builder(
+                return ListView.builder(
                   itemCount: filteredProducts.length,
                   itemBuilder: (context, index) {
-                    var product = filteredProducts[index].data() as Map<String, dynamic>;
-                    return Card(
-                      margin: EdgeInsets.all(8.0),
-                      child: ListTile(
-                        title: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (product['imageUrl'] != null)
-                              Image.network(
-                                product['imageUrl'],
-                                height: 150,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Name: ${product['name']}',
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 5),
-                            Text('Description: ${product['description']}'),
-                            SizedBox(height: 5),
-                            Text('Location: ${product['address']}'),
-                            SizedBox(height: 10),
-                            ElevatedButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text('Contact Seller'),
-                                      content: Text('Phone: ${product['phone']}'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('OK'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.phone),
-                                  SizedBox(width: 5),
-                                  Text('Contact Seller'),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+                    var product =
+                    filteredProducts[index].data() as Map<String, dynamic>;
+                    List<dynamic>? imageUrls = product['imageUrls'];
+                    return ProductCard(product: product, imageUrls: imageUrls);
                   },
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -184,6 +125,145 @@ class SearchBar extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ProductCard extends StatelessWidget {
+  final Map<String, dynamic> product;
+  final List<dynamic>? imageUrls;
+
+  const ProductCard({Key? key, required this.product, this.imageUrls})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (imageUrls != null)
+            SizedBox(
+              height: 250,
+              child: PageView.builder(
+                itemCount: imageUrls!.length,
+                itemBuilder: (context, index) {
+                  return Image.network(
+                    imageUrls![index],
+                    fit: BoxFit.fill,
+                  );
+                },
+              ),
+            ),
+          SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              'Name: ${product['name']}',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          SizedBox(height: 5),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text('Description: ${product['description']}'),
+          ),
+          SizedBox(height: 5),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text('Location: ${product['address']}'),
+          ),
+          SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Contact Seller'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            launchWhatsApp(context, number: product['phone']);
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'images/ASS.png',
+                                width: MediaQuery.of(context).size.width * 0.06,
+                                height:
+                                MediaQuery.of(context).size.width * 0.06,
+                              ),
+                              SizedBox(width: 5),
+                              Text('WhatsApp'),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            launchPhoneCall(context, number: product['phone']);
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.phone),
+                              SizedBox(width: 5),
+                              Text('Call'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Cancel'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.phone),
+                SizedBox(width: 5),
+                Text('Contact Seller'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void launchWhatsApp(BuildContext context, {required String number}) async {
+    String whatsappUrl = "https://wa.me/+2$number";
+    await canLaunch(whatsappUrl)
+        ? launch(whatsappUrl)
+        : ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Could not launch WhatsApp'),
+      ),
+    );
+  }
+
+  void launchPhoneCall(BuildContext context, {required String number}) async {
+    String phoneCallUrl = "tel:$number";
+    await canLaunch(phoneCallUrl)
+        ? launch(phoneCallUrl)
+        : ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Could not make a phone call'),
       ),
     );
   }

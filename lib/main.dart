@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled17/login_screen.dart';
 import 'package:untitled17/screens/home_page.dart';
 
+import 'events.dart';
 import 'modules/screens/splash_screen1.dart';
 // Import the firebase_options.dart file
 
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
           themeMode: themeProvider.themeMode,
           theme: ThemeData.light(),
           darkTheme: ThemeData.dark(),
-          home:  SplashScreen(),
+          home: SplashScreen(),
         );
       },
     );

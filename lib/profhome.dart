@@ -1,6 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:untitled17/screens/home_page.dart';
+import 'package:untitled17/screens/side_menu.dart';
+
+import 'fav.dart';
+import 'notif.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Your App Title',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: ProfilePage(), // تحديد صفحة البداية للتطبيق
+    );
+  }
+}
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -92,6 +114,53 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: CurvedNavigationBar(
+        backgroundColor: Color(0xffF5F5F5),
+        color: Color.fromARGB(255, 209, 212, 217),
+        animationDuration: Duration(milliseconds: 300),
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => HomePage(),
+              ),
+            );
+          } else if (index == 1) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => FavoritesPage(),
+              ),
+            );
+          } else if (index == 2) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => NotificationsPage(),
+              ),
+            );
+          } else if (index == 3) {
+            // Do nothing since we are already on Profile page
+          }
+        },
+        index: 3, // تحديد التحديد عند الزر الخاص بالحساب
+        items: [
+          Icon(
+            Icons.home,
+            color: Colors.black,
+          ),
+          Icon(
+            Icons.favorite,
+            color: Colors.black,
+          ),
+          Icon(
+            Icons.notifications,
+            color: Colors.black,
+          ),
+          Icon(
+            Icons.account_circle_rounded,
+            color: Colors.black,
+          ),
+        ],
       ),
     );
   }
@@ -198,7 +267,3 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 }
-
-void main() => runApp(MaterialApp(
-  home: ProfilePage(),
-));

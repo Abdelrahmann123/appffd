@@ -1,8 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:untitled17/screens/paytriner.dart';
+import 'package:untitled17/screens/vod.dart';
 
 class FirestoreService {
   final CollectionReference bookingRequests =
@@ -24,14 +28,7 @@ class FirestoreService {
   }
 }
 
-class Buy extends StatefulWidget {
-  @override
-  _BuyPageState createState() => _BuyPageState();
-}
-
-class _BuyPageState extends State<Buy> {
-  List<Color> buttonColors = [Colors.green, Colors.blue];
-
+class Buy extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +36,7 @@ class _BuyPageState extends State<Buy> {
         title: const Text('Payment Screen'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(50.0),
+        padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -49,46 +46,52 @@ class _BuyPageState extends State<Buy> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
-                      return Vodafone();
+                      return VodafonePlayground();
                     },
                   ),
                 );
               },
               child: Container(
-                padding: const EdgeInsets.all(16.0),
+                padding:
+                EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
                 decoration: BoxDecoration(
-                  color: buttonColors[0],
+                  color: Colors.green,
                   borderRadius: BorderRadius.circular(30.0),
                 ),
                 child: Center(
-                  child: const Text(
+                  child: Text(
                     'Electronic wallet',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.width * 0.05,
+                        color: Colors.white),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 16.0),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
             InkWell(
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
-                      return Visa();
+                      return MySample();
                     },
                   ),
                 );
               },
               child: Container(
-                padding: const EdgeInsets.all(16.0),
+                padding:
+                EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
                 decoration: BoxDecoration(
-                  color: buttonColors[1],
+                  color: Colors.blue,
                   borderRadius: BorderRadius.circular(30.0),
                 ),
                 child: Center(
-                  child: const Text(
+                  child: Text(
                     'Visa',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.width * 0.05,
+                        color: Colors.white),
                   ),
                 ),
               ),
@@ -100,293 +103,276 @@ class _BuyPageState extends State<Buy> {
   }
 }
 
-class Visa extends StatefulWidget {
+class MySample extends StatefulWidget {
+  const MySample({Key? key}) : super(key: key);
+
   @override
-  _VisaPageState createState() => _VisaPageState();
+  State<StatefulWidget> createState() => MySampleState();
 }
 
-class _VisaPageState extends State<Visa> {
+class MySampleState extends State<MySample> {
+  bool isLightTheme = false; // حالة الثيم الحالي (فاتح/داكن)
+  String cardNumber = ''; // رقم البطاقة
+  String expiryDate = ''; // تاريخ انتهاء الصلاحية
+  String cardHolderName = ''; // اسم صاحب البطاقة
+  String cvvCode = ''; // رمز CVV
+  bool isCvvFocused = false; // هل تم التركيز على رمز CVV
+  bool useGlassMorphism = false; // هل يجب استخدام تأثير "Glassmorphism"
+  bool useBackgroundImage = false; // هل يجب استخدام صورة خلفية
+  bool useFloatingAnimation = true; // هل يجب استخدام الرسوم المتحركة الطافية
+  final OutlineInputBorder border = OutlineInputBorder(
+    borderSide: BorderSide(
+      color: Colors.grey.withOpacity(0.7),
+      width: 2.0,
+    ),
+  );
+  final GlobalKey<FormState> formKey =
+  GlobalKey<FormState>(); // مفتاح عالمي لنموذج البطاقة
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Visa Information'),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: VisaForm(),
-        ),
-      ),
+    SystemChrome.setSystemUIOverlayStyle(
+      isLightTheme ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
     );
-  }
-}
-
-class VisaForm extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextField(
-          decoration: InputDecoration(
-            labelText: 'Card number',
-            hintText: 'XXXX-XXXX-XXXX-XXXX',
-          ),
-          keyboardType: TextInputType.number,
+    return MaterialApp(
+      title: 'Card View',
+      debugShowCheckedModeBanner: false,
+      themeMode: isLightTheme ? ThemeMode.light : ThemeMode.dark,
+      theme: ThemeData(
+        // ثيم النصوص والحقول النصية في حالة الثيم الفاتح
+        textTheme: const TextTheme(
+          titleMedium: TextStyle(color: Colors.black, fontSize: 18),
         ),
-        const SizedBox(height: 16.0),
-        TextField(
-          decoration: InputDecoration(
-            labelText: 'Cardholder name',
-            hintText: 'Enter the name as on the card',
-          ),
+        // تكوين الألوان لحالة الثيم الفاتح
+        colorScheme: ColorScheme.fromSeed(
+          brightness: Brightness.light,
+          seedColor: Colors.black,
+          background: Colors.white,
+          primary: Colors.black,
         ),
-        const SizedBox(height: 16.0),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'MM/YY',
-                  hintText: 'Month/Year',
-                ),
-                keyboardType: TextInputType.datetime,
-              ),
-            ),
-            const SizedBox(width: 16.0),
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'CVV',
-                  hintText: '123',
-                ),
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24.0),
-        InkWell(
-          onTap: () {
-            // Handle the form submission logic here
-            // For now, it's left empty
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(30.0),
-            ),
-            child: Center(
-              child: const Text(
-                'Send',
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
+        // تصميم الحقول النصية
+        inputDecorationTheme: InputDecorationTheme(
+          hintStyle: const TextStyle(color: Colors.black),
+          labelStyle: const TextStyle(color: Colors.black),
+          focusedBorder: border,
+          enabledBorder: border,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            borderSide: BorderSide.none,
           ),
         ),
-      ],
-    );
-  }
-}
-
-class Vodafone extends StatefulWidget {
-  @override
-  _VodafonePageState createState() => _VodafonePageState();
-}
-
-class _VodafonePageState extends State<Vodafone> {
-  final FirestoreService _firestoreService = FirestoreService();
-
-  Future<List<String>> fetchPhoneNumbers() async {
-    final playgrounds = FirebaseFirestore.instance.collection('playgrounds');
-
-    final snapshot = await playgrounds.get();
-
-    return snapshot.docs
-        .where((doc) => doc.data().containsKey('phoneNumber'))
-        .map<String>((doc) => doc.data()['phoneNumber'].toString())
-        .toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Vodafone Cash'),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              FutureBuilder<List<String>>(
-                future: fetchPhoneNumbers(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    );
-                  } else {
-                    final phoneNumbers = snapshot.data ?? [];
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: phoneNumbers
-                          .map(
-                            (phoneNumber) => Text(
-                          phoneNumber,
-                          style: TextStyle(fontSize: 24.0),
+      darkTheme: ThemeData(
+        // ثيم النصوص والحقول النصية في حالة الثيم الداكن
+        textTheme: const TextTheme(
+          titleMedium: TextStyle(color: Colors.white, fontSize: 18),
+        ),
+        // تكوين الألوان لحالة الثيم الداكن
+        colorScheme: ColorScheme.fromSeed(
+          brightness: Brightness.dark,
+          seedColor: Colors.black,
+          background: Colors.white,
+          primary: Colors.white,
+        ),
+        // تصميم الحقول النصية
+        inputDecorationTheme: InputDecorationTheme(
+          hintStyle: const TextStyle(color: Colors.black),
+          labelStyle: const TextStyle(color: Colors.black),
+          focusedBorder: border,
+          enabledBorder: border,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Card View'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
+        resizeToAvoidBottomInset: false,
+        body: Builder(
+          builder: (BuildContext context) {
+            return Container(
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    // عنصر عرض بطاقة الائتمان
+                    CreditCardWidget(
+                      enableFloatingCard: useFloatingAnimation,
+                      glassmorphismConfig: _getGlassmorphismConfig(),
+                      cardNumber: cardNumber,
+                      expiryDate: expiryDate,
+                      cardHolderName: cardHolderName,
+                      cvvCode: cvvCode,
+                      bankName: 'Axis Bank',
+                      backgroundImage: 'images/visa.jpg',
+                      frontCardBorder: useGlassMorphism
+                          ? null
+                          : Border.all(color: Colors.grey),
+                      backCardBorder: useGlassMorphism
+                          ? null
+                          : Border.all(color: Colors.grey),
+                      showBackView: isCvvFocused,
+                      obscureCardNumber: true,
+                      obscureCardCvv: true,
+                      isHolderNameVisible: true,
+                      // تعيين صورة خلفية مخصصة إذا تم تفعيلها
+                      isSwipeGestureEnabled: true,
+                      onCreditCardWidgetChange:
+                          (CreditCardBrand creditCardBrand) {},
+                      customCardTypeIcons: <CustomCardTypeIcon>[
+                        CustomCardTypeIcon(
+                          cardType: CardType.mastercard,
+                          cardImage: Image.asset(
+                            'assets/mastercard.png',
+                            height: 48,
+                            width: 48,
+                          ),
                         ),
-                      )
-                          .toList(),
-                    );
-                  }
-                },
-              ),
-              const SizedBox(height: 32.0),
-              GestureDetector(
-                onTap: () async {
-                  // Add your conditions for navigation here
-                  // For example, check if phoneNumberError and amountError are empty
-                  // before navigating to the UploadScreen
-                  await _firestoreService.moveApprovedRequest();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => UploadScreen()),
-                  );
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  child: const Text(
-                    'Next',
-                    style: TextStyle(fontSize: 20),
-                  ),
+                      ],
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: <Widget>[
+                            // نموذج إدخال بيانات بطاقة الائتمان
+                            CreditCardForm(
+                              formKey: formKey,
+                              obscureCvv: true,
+                              obscureNumber: true,
+                              cardNumber: cardNumber,
+                              cvvCode: cvvCode,
+                              isHolderNameVisible: true,
+                              isCardNumberVisible: true,
+                              isExpiryDateVisible: true,
+                              cardHolderName: cardHolderName,
+                              expiryDate: expiryDate,
+                              inputConfiguration: const InputConfiguration(
+                                cardNumberDecoration: InputDecoration(
+                                  labelText: 'Number',
+                                  hintText: 'XXXX XXXX XXXX XXXX',
+                                ),
+                                expiryDateDecoration: InputDecoration(
+                                  labelText: 'Expired Date',
+                                  hintText: 'XX/XX',
+                                ),
+                                cvvCodeDecoration: InputDecoration(
+                                  labelText: 'CVV',
+                                  hintText: 'XXX',
+                                ),
+                                cardHolderDecoration: InputDecoration(
+                                  labelText: 'Card Holder',
+                                ),
+                              ),
+// دالة تنفيذ عند تغيير البيانات في نموذج البطاقة
+                              onCreditCardModelChange: onCreditCardModelChange,
+                            ),
+                            const SizedBox(height: 20),
+// زر "Validate" للتحقق من صحة البيانات
+                            GestureDetector(
+                              onTap: _onValidate,
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: <Color>[
+                                      Color(0xFFB58D67),
+                                      Color(0xFFE5D1B2),
+                                      Color(0xFFF9EED2),
+                                      Color(0xFFEFEFED),
+                                      Color(0xFFF9EED2),
+                                      Color(0xFFB58D67),
+                                    ],
+                                    begin: Alignment(-1, -4),
+                                    end: Alignment(1, 4),
+                                  ),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(8),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      spreadRadius: 3,
+                                      blurRadius: 7,
+                                      offset: Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                padding:
+                                const EdgeInsets.symmetric(vertical: 15),
+                                alignment: Alignment.center,
+                                child: const Text(
+                                  'Validate',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: 'halter',
+                                    fontSize: 14,
+                                    package: 'flutter_credit_card',
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
   }
-}
 
-class UploadScreen extends StatefulWidget {
-  const UploadScreen({Key? key}) : super(key: key);
+// دالة التحقق من صحة البيانات
+  void _onValidate() {
+    if (formKey.currentState?.validate() ?? false) {
+      print('صحيحة!');
+    } else {
+      print('غير صحيحة!');
+    }
+  }
 
-  @override
-  _UploadScreenState createState() => _UploadScreenState();
-}
+// دالة لإرجاع تكوين "Glassmorphism" المطلوب
+  Glassmorphism? _getGlassmorphismConfig() {
+    if (!useGlassMorphism) {
+      return null;
+    }
+    final LinearGradient gradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: <Color>[Colors.grey.withAlpha(50), Colors.grey.withAlpha(50)],
+      stops: const <double>[0.3, 0],
+    );
 
-class _UploadScreenState extends State<UploadScreen> {
-  File? _image;
-  bool _imageSelected = false;
-  final FirestoreService _firestoreService = FirestoreService();
+    return isLightTheme
+        ? Glassmorphism(blurX: 8.0, blurY: 16.0, gradient: gradient)
+        : Glassmorphism.defaultConfig();
+  }
 
-  Future getImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
+// دالة تنفيذ عند تغيير البيانات في نموذج بطاقة الائتمان
+  void onCreditCardModelChange(CreditCardModel creditCardModel) {
     setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-        _imageSelected = true;
-      }
+      cardNumber = creditCardModel.cardNumber;
+      expiryDate = creditCardModel.expiryDate;
+      cardHolderName = creditCardModel.cardHolderName;
+      cvvCode = creditCardModel.cvvCode;
+      isCvvFocused = creditCardModel.isCvvFocused;
     });
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Upload screenshot'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.blue),
-                  ),
-                  child: _image == null
-                      ? const Center(child: Text('Tap to select image'))
-                      : Image.file(_image!, fit: BoxFit.cover),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            GestureDetector(
-              onTap: () {
-                getImage();
-              },
-              child: Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: const Text(
-                  'Select image',
-                  style: TextStyle(fontSize: 20, color: Colors.white),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            GestureDetector(
-              onTap: () async {
-                if (_imageSelected) {
-                  // Add the current form data to the "BookingRequests" collection
-                  await _firestoreService.bookingRequests.add({
-                    'imagePath': _image!.path, // Replace with actual image path
-                    // Add other necessary fields
-                  });
-
-                  // Move the approved request to the "ApprovedBookingRequests" collection
-                  await _firestoreService.moveApprovedRequest();
-
-                  print('Request Submitted and Approved!');
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Choose the image first'),
-                    ),
-                  );
-                }
-              },
-              child: Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: const Text(
-                  'Send',
-                  style: TextStyle(fontSize: 20, color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
+
+
+

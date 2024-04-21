@@ -27,8 +27,7 @@ class _TrainerResPageState extends State<TrainerResPage> {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        primary: Colors.blue, // Change the button color
-        onPrimary: Colors.white, // Change the text color
+        foregroundColor: Colors.white, backgroundColor: Colors.blue, // Change the text color
         padding: EdgeInsets.symmetric(vertical: 15),
       ),
       child: Text(
@@ -483,8 +482,7 @@ class RequestCard extends StatelessWidget {
                     _acceptRequest(request['userId']); // Implement the accept logic
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.green, // Accept button color
-                    onPrimary: Colors.white, // Accept button text color
+                    foregroundColor: Colors.white, backgroundColor: Colors.green, // Accept button text color
                   ),
                   child: Text('Accept'),
                 ),
@@ -493,8 +491,7 @@ class RequestCard extends StatelessWidget {
                     _rejectRequest(request['userId']); // Implement the reject logic
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.red, // Reject button color
-                    onPrimary: Colors.white, // Reject button text color
+                    foregroundColor: Colors.white, backgroundColor: Colors.red, // Reject button text color
                   ),
                   child: Text('Reject'),
                 ),

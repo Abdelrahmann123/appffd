@@ -140,6 +140,8 @@ class _DetailsPageState extends State<DetailsPage> {
               onTap: getImage,
               child: CircleAvatar(
                 radius: 60,
+                backgroundColor:
+                Colors.grey[200], // لإضافة لون خلفية لل CircleAvatar
                 backgroundImage: _image != null ? FileImage(_image!) : null,
                 child: _image == null
                     ? Icon(
@@ -231,9 +233,8 @@ class _DetailsPageState extends State<DetailsPage> {
               onPressed: () {
                 saveProfile();
               },
-              child: _loading
-                  ? CircularProgressIndicator()
-                  : Text('Save Profile'),
+              child:
+              _loading ? CircularProgressIndicator() : Text('Save Profile'),
             ),
           ],
         ),

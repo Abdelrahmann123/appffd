@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'package:rive/rive.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:untitled17/login_screen.dart';
 import 'package:untitled17/profhome.dart';
 import 'package:untitled17/profile.dart';
-
-
-
-
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -42,6 +38,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   // Internal counter for user sequence
   int userCounter = 0;
+  bool isLoading = false;
+  String errorMessage = '';
 
   @override
   void initState() {
@@ -78,7 +76,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Future<void> registerUser() async {
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      setState(() {
+        isLoading = true;
+        errorMessage = '';
+      });
+      // Validation before registration
+      if (emailController.text.isEmpty ||
+          passwordController.text.isEmpty ||
+          confirmPasswordController.text.isEmpty) {
+        setState(() {
+          isLoading = false;
+          errorMessage = 'Please fill all fields.';
+        });
+        return;
+      }
+      if (passwordController.text != confirmPasswordController.text) {
+        setState(() {
+          isLoading = false;
+          errorMessage = 'Passwords do not match.';
+        });
+        return;
+      }
+
+      UserCredential userCredential =
+      await _auth.createUserWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
@@ -87,20 +108,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       String userCode = generateUserCode();
 
-      print("User registered successfully: ${userCredential.user?.email}, User Code: $userCode");
+      print(
+          "User registered successfully: ${userCredential.user?.email}, User Code: $userCode");
 
       // Navigate to the ProfilePage after successful registration
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => DetailsPage()),
       );
-
     } on FirebaseAuthException catch (e) {
       print('Error during registration: $e');
-      // You can add error messages to the user interface here
+      setState(() {
+        errorMessage = 'Error: ${e.message}';
+      });
     } catch (e) {
       print('Unexpected error: $e');
-      // You can add unexpected error messages to the user interface here
+      setState(() {
+        errorMessage = 'Unexpected error occurred.';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -129,12 +158,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   image: AssetImage("images/spooooortttt.png"),
                 ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              "",
-              style: Theme.of(context).textTheme.headlineMedium,
-              textAlign: TextAlign.center,
             ),
             SizedBox(
               height: 200,
@@ -239,6 +262,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 2),
+            Text(
+              errorMessage,
+              style: TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
+              },
+              child: Text(
+                "Already have an account? Sign in",
+                style: TextStyle(
+                  decoration: TextDecoration.underline,
+                  color: Colors.blueAccent,
+                ),
+              ),
+            ),
             const SizedBox(height: 10),
             MaterialButton(
               minWidth: 250.0,
@@ -250,7 +295,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
               onPressed: () {
                 registerUser();
               },
-              child: const Text(
+              child: isLoading
+                  ? CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              )
+                  : const Text(
                 "Register",
                 style: TextStyle(color: Colors.white),
               ),

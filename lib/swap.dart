@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:untitled17/pro.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,60 +39,96 @@ class _AddProductPageState extends State<AddProductPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  PickedFile? _pickedImage;
+  List<PickedFile> _pickedImages = [];
+  bool isLoading = false;
+
+  bool _nameError = false;
+  String _nameErrorMessage = '';
+  bool _descriptionError = false;
+  String _descriptionErrorMessage = '';
+  bool _addressError = false;
+  String _addressErrorMessage = '';
+  bool _phoneError = false;
+  String _phoneErrorMessage = '';
 
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
-    final pickedFile = await _picker.getImage(source: ImageSource.gallery);
-
+    final pickedFiles = await _picker.getMultiImage(
+        maxWidth: 1920, maxHeight: 1200, imageQuality: 80);
     setState(() {
-      _pickedImage = pickedFile;
+      _pickedImages.addAll(pickedFiles!);
     });
   }
 
   Future<void> _uploadData() async {
+    setState(() {
+      isLoading = true;
+      _nameError = false;
+      _nameErrorMessage = '';
+      _descriptionError = false;
+      _descriptionErrorMessage = '';
+      _addressError = false;
+      _addressErrorMessage = '';
+      _phoneError = false;
+      _phoneErrorMessage = '';
+    });
+
     try {
       User? user = _auth.currentUser;
       if (user != null) {
         String uid = user.uid;
 
-        if (
-        _nameController.text.isEmpty ||
+        if (_nameController.text.isEmpty ||
             _descriptionController.text.isEmpty ||
             _addressController.text.isEmpty ||
             _phoneController.text.isEmpty ||
-            _pickedImage == null
-        ) {
-          // Show an error message if any of the required fields is empty
+            _pickedImages.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Please fill in all fields and pick an image'),
               duration: Duration(seconds: 2),
             ),
           );
+          setState(() {
+            isLoading = false;
+          });
           return;
         }
 
-        // Get the reference to the Firebase Storage
-        final Reference storageRef = FirebaseStorage.instance.ref().child('product_images/${DateTime.now()}.jpg');
+        if (!_phoneController.text.startsWith('01')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Phone number must start with "01"'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          setState(() {
+            isLoading = false;
+            _phoneError = true;
+            _phoneErrorMessage = 'Phone number must start with "01"';
+          });
+          return;
+        }
 
-        // Upload the image to Firebase Storage
-        await storageRef.putFile(File(_pickedImage!.path));
+        List<String> imageUrls = [];
 
-        // Get the URL of the uploaded image
-        final String imageUrl = await storageRef.getDownloadURL();
+        for (var pickedImage in _pickedImages) {
+          final Reference storageRef = FirebaseStorage.instance.ref().child(
+              'product_images/${DateTime.now()}${_pickedImages.indexOf(pickedImage)}.jpg');
+          await storageRef.putFile(File(pickedImage.path));
+          final String imageUrl = await storageRef.getDownloadURL();
+          imageUrls.add(imageUrl);
+        }
 
-        // Add product details to Firestore
         await _firestore.collection('products').add({
           'uid': uid,
           'name': _nameController.text,
           'description': _descriptionController.text,
           'address': _addressController.text,
           'phone': _phoneController.text,
-          'imageUrl': imageUrl, // Add the image URL to Firestore
+          'imageUrls': imageUrls,
         });
 
-        // Show a success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Product added successfully'),
@@ -98,14 +136,15 @@ class _AddProductPageState extends State<AddProductPage> {
           ),
         );
 
-        // Navigate to DisplayProductsPage after successful upload
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => DisplayProductsPage()),
         );
       }
     } catch (e) {
-      // Show an error message
+      setState(() {
+        isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error uploading data: $e'),
@@ -122,102 +161,107 @@ class _AddProductPageState extends State<AddProductPage> {
       appBar: AppBar(
         title: Text('Add sports tool'),
       ),
-      backgroundColor: Colors.white, // تغيير خلفية الصفحة
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              if (_pickedImage != null)
-                Image.file(
-                  File(_pickedImage!.path),
-                  height: 150,
-                ),
-              ElevatedButton(
-                onPressed: _pickImage,
-                child: Text('Pick Image'),
-              ),
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Name'),
-              ),
-              TextField(
-                controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
-              ),
-              TextField(
-                controller: _addressController,
-                decoration: InputDecoration(labelText: 'Address'),
-              ),
-              TextField(
-                controller: _phoneController,
-                decoration: InputDecoration(labelText: 'Phone'),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _uploadData,
-                child: Text('Add tool'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class DisplayProductsPage extends StatefulWidget {
-  @override
-  _DisplayProductsPageState createState() => _DisplayProductsPageState();
-}
-
-class _DisplayProductsPageState extends State<DisplayProductsPage> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Display sports tools'),
-      ),
-      body: StreamBuilder(
-        stream: _firestore.collection('products').snapshots(),
-        builder: (context, AsyncSnapshot snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          var products = (snapshot.data as QuerySnapshot?)?.docs ?? [];
-
-          return ListView.builder(
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              var product = products[index].data() as Map<String, dynamic>;
-              return Container(
-                padding: EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (product['imageUrl'] != null)
-                      Image.network(
-                        product['imageUrl'],
-                        height: 150,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    height: 150,
+                    child: PageView.builder(
+                      itemCount: _pickedImages.length,
+                      itemBuilder: (context, index) {
+                        return Image.file(
+                          File(_pickedImages[index].path),
+                          height: 150,
+                        );
+                      },
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: _pickImage,
+                    child: Text('Pick Image'),
+                  ),
+                  SizedBox(height: 12),
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Name',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
                       ),
-                    Text('Name: ${product['name']}'),
-                    Text('Description: ${product['description']}'),
-                    Text('Address: ${product['address']}'),
-                    Text('Phone: ${product['phone']}'),
-                    SizedBox(height: 20),
-                  ],
+                      errorText: _nameError ? _nameErrorMessage : null,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  TextField(
+                    controller: _descriptionController,
+                    decoration: InputDecoration(
+                      labelText: 'Description',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      errorText:
+                      _descriptionError ? _descriptionErrorMessage : null,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  TextField(
+                    controller: _addressController,
+                    decoration: InputDecoration(
+                      labelText: 'Address',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      errorText: _addressError ? _addressErrorMessage : null,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  TextField(
+                    controller: _phoneController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                      LengthLimitingTextInputFormatter(
+                          11), // تحديد الحد الأقصى للأحرف
+                    ],
+                    decoration: InputDecoration(
+                      labelText: 'Phone',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      errorText: _phoneError ? _phoneErrorMessage : null,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: _uploadData,
+                    child: Text('Add tool'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (isLoading)
+            Center(
+              child: Container(
+                width: 50.0,
+                height: 50.0,
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
-              );
-            },
-          );
-        },
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

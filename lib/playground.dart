@@ -32,6 +32,7 @@ class _PlaygroundState extends State<Playground> {
           child: Container(
             margin: EdgeInsets.all(8),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 Row(
                   children: [
@@ -54,7 +55,8 @@ class _PlaygroundState extends State<Playground> {
                         style: TextStyle(color: Colors.black),
                       ),
                     ),
-                    ElevatedButton(
+                    IconButton(
+                      icon: Icon(Icons.filter_alt), // أيقونة التصفية
                       onPressed: () async {
                         final selectedCityResult = await Navigator.push(
                           context,
@@ -69,7 +71,6 @@ class _PlaygroundState extends State<Playground> {
                           });
                         }
                       },
-                      child: Text('Districts'),
                     ),
                   ],
                 ),
@@ -83,22 +84,26 @@ class _PlaygroundState extends State<Playground> {
                   thickness: 0.5,
                   color: Colors.grey,
                 ),
-                SizedBox(height: 18,),
-
+                SizedBox(
+                  height: 18,
+                ),
                 FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
                   future: (selectedCity.isEmpty)
-                      ? FirebaseFirestore.instance.collection('playgrounds').get()
+                      ? FirebaseFirestore.instance
+                      .collection('stadiums')
+                      .get()
                       : FirebaseFirestore.instance
-                      .collection('playgrounds')
+                      .collection('stadiums')
                       .where('city', isEqualTo: selectedCity)
                       .get(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
-                      return Text('No data available');
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (snapshot.data == null ||
+                        snapshot.data!.docs.isEmpty) {
+                      return Center(child: Text('No data available'));
                     } else {
                       List<DocumentSnapshot> playgrounds = snapshot.data!.docs;
 
@@ -106,8 +111,12 @@ class _PlaygroundState extends State<Playground> {
                         children: playgrounds.map((playground) {
                           return Column(
                             children: [
-                              SizedBox(height: 18,),
-                              PlaygroundCard(data: playground.data() as Map<String, dynamic>),
+                              SizedBox(
+                                height: 18,
+                              ),
+                              PlaygroundCard(
+                                  data: playground.data()
+                                  as Map<String, dynamic>),
                             ],
                           );
                         }).toList(),
@@ -115,8 +124,9 @@ class _PlaygroundState extends State<Playground> {
                     }
                   },
                 ),
-                SizedBox(height: 18,),
-
+                SizedBox(
+                  height: 18,
+                ),
                 Text(
                   'Selected City: $selectedCity',
                   style: TextStyle(
@@ -140,6 +150,12 @@ class PlaygroundCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // استخراج قائمة الصور من المصفوفة داخل imageUrl
+    List<String> imageUrls = (data['imageUrl'] as List<dynamic>).cast<String>();
+
+    final price = data['price'] as String? ?? '';
+    final name = data['name'] as String? ?? '';
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -149,32 +165,22 @@ class PlaygroundCard extends StatelessWidget {
           ),
         );
       },
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          NewWidget(imge: data['imageUrl']),
-          Positioned(
-            child: Container(
-              margin: EdgeInsets.only(left: 20, bottom: 10),
-              child: Nagma(),
-            ),
-            bottom: 1,
-          ),
-          Positioned(
-            top: 20,
-            left: 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${data['name']}',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
-                ),
-              ],
-            ),
+          // عرض الصور باستخدام ListView.builder()
+          ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: imageUrls.length,
+            itemBuilder: (context, index) {
+              return NewWidget(
+                imge: imageUrls[index],
+                data: data,
+                name: name,
+                price: price,
+              );
+            },
           ),
         ],
       ),
@@ -182,122 +188,77 @@ class PlaygroundCard extends StatelessWidget {
   }
 }
 
-class Nagma extends StatefulWidget {
-  const Nagma({
-    super.key,
-  });
-
-  @override
-  State<Nagma> createState() => _NagmaState();
-}
-
-class Nagmas extends StatefulWidget {
-  const Nagmas({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  State<Nagma> createState() => _NagmaState();
-}
-
-class _NagmaState extends State<Nagma> {
-  double rating = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return RatingBar.builder(
-      initialRating: rating,
-      minRating: 1,
-      direction: Axis.horizontal,
-      allowHalfRating: true,
-      itemCount: 5,
-      itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-      itemSize: 20,
-      itemBuilder: (context, _) => Icon(
-        Icons.star,
-        color: Colors.amber,
-      ),
-      onRatingUpdate: (newRating) {
-        setState(() {
-          rating = newRating;
-        });
-      },
-    );
-  }
-}
-
 class NewWidget extends StatelessWidget {
   final String imge;
+  final Map<String, dynamic> data;
+  final String name;
+  final String price;
 
-  const NewWidget({Key? key, required this.imge}) : super(key: key);
+  const NewWidget({Key? key, required this.imge, required this.data, required this.name, required this.price}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double cardHeight = screenHeight * 0.3;
+
     return Container(
-      height: 180,
-      child: Builder(
-        builder: (BuildContext context) {
-          return Container(
-            width: MediaQuery.of(context).size.width,
-            margin: EdgeInsets.symmetric(horizontal: 5.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(imge),
-                  fit: BoxFit.fill,
+      height: cardHeight,
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Card(
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 10,
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(imge),
+                      fit: BoxFit.cover,
+                    ),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(30),
+                    ),
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(30),
               ),
-              child: Container(
-                child: Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(
-                        right: 180,
-                        left: 8,
-                        top: 88,
-                      ),
-                      width: 209,
-                      height: 72,
-                      child: Text(
-                        '',
+              Expanded(
+                flex: 5,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        name,
                         style: TextStyle(
-                          fontSize: 20,
+                          color: Colors.black,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          fontSize: 20,
                         ),
                       ),
-                    ),
-                  ],
+                      Text(
+                        price,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class SearchBar extends StatelessWidget {
-  const SearchBar({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      child: TextFormField(
-        decoration: InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: "Search",
-          prefixIcon: Icon(
-            Icons.search,
-            color: Colors.grey,
+            ],
           ),
         ),
       ),
@@ -323,6 +284,7 @@ class Category extends StatelessWidget {
                   child: SingleChildScrollView(
                     child: Row(
                       children: [
+                        const SizedBox(width: 12),
                         categoryIcon("Paddle", "images/paddel.jpeg"),
                         const SizedBox(width: 12),
                         categoryIcon("Football", "images/football.jpeg"),
