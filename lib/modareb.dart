@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:untitled17/payments.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DisplayTrainersPage extends StatefulWidget {
   @override
@@ -15,6 +17,15 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+  }
+
+  // دالة لفتح الروابط
+  _launchURL(String? url) async {
+    if (await canLaunch(url!)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
@@ -35,9 +46,9 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
         children: [
           Container(
             margin: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical:
-                8), // تحديد المسافات من اليمين واليسار والأعلى والأسفل
+              horizontal: 16,
+              vertical: 8,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -101,6 +112,8 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
                     filteredTrainers[index].data()! as Map<String, dynamic>;
                     return TrainerCard(
                       trainer: trainer,
+                      // تمرير دالة فتح الروابط كوسيطة
+                      launchURL: _launchURL,
                     );
                   },
                 );
@@ -112,11 +125,11 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
     );
   }
 }
-
 class TrainerCard extends StatelessWidget {
   final Map<String, dynamic> trainer;
+  final Function(String?) launchURL;
 
-  TrainerCard({required this.trainer});
+  TrainerCard({required this.trainer, required this.launchURL});
 
   @override
   Widget build(BuildContext context) {
@@ -188,6 +201,46 @@ class TrainerCard extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  if (trainer['linkedin'] != null)
+                    IconButton(
+                      icon: Icon(FontAwesomeIcons.linkedin),
+                      onPressed: () {
+                        launchURL(trainer['linkedin']);
+                      },
+                    ),
+                  if (trainer['youtube'] != null)
+                    IconButton(
+                      icon: Icon(FontAwesomeIcons.youtube),
+                      onPressed: () {
+                        launchURL(trainer['youtube']);
+                      },
+                    ),
+                  if (trainer['instagram'] != null)
+                    IconButton(
+                      icon: Icon(FontAwesomeIcons.instagram),
+                      onPressed: () {
+                        launchURL(trainer['instagram']);
+                      },
+                    ),
+                  if (trainer['twitter'] != null)
+                    IconButton(
+                      icon: Icon(FontAwesomeIcons.twitter),
+                      onPressed: () {
+                        launchURL(trainer['twitter']);
+                      },
+                    ),
+                  if (trainer['facebook'] != null)
+                    IconButton(
+                      icon: Icon(FontAwesomeIcons.facebook),
+                      onPressed: () {
+                        launchURL(trainer['facebook']);
+                      },
+                    ),
+                ],
+              ),
             ],
           ),
         ),

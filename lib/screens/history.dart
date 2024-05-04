@@ -1,21 +1,20 @@
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:untitled17/profhome.dart';
-import 'package:untitled17/screens/history.dart';
-import 'package:untitled17/screens/home_page.dart';
-
-import 'package:untitled17/screens/side_menu.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:untitled17/main.dart';
+import 'package:untitled17/profhome.dart';
+import 'package:untitled17/screens/home_page.dart';
+import 'package:untitled17/screens/side_menu.dart';
 
+import '../notif.dart';
 
-class NotificationsPage extends StatefulWidget {
+class HistoryPage extends StatefulWidget {
   @override
-  State<NotificationsPage> createState() => _NotificationsPageState();
+  State<HistoryPage> createState() => _HistoryPageState();
 }
 
-class _NotificationsPageState extends State<NotificationsPage> {
-  var currentIndex = 2;
+class _HistoryPageState extends State<HistoryPage> {
+  var currentIndex = 1;
   @override
   Widget build(BuildContext context) {
     double displayWidth = MediaQuery.of(context).size.width;
@@ -43,7 +42,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             Navigator.of(context).pop();
           },
         ),
-        title: Text('Notifications', style: TextStyle(color: Colors.white)),
+        title: Text('History', style: TextStyle(color: Colors.white)),
         iconTheme: IconThemeData(color: backButtonColor),
       ),
       backgroundColor: themeProvider.themeMode == ThemeMode.dark
@@ -94,11 +93,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     if (index == 0) {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) => HomePage()));
-                    } else if (index == 1) {
+                    } else if (index == 2) {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => HistoryPage()));
+                              builder: (context) => NotificationsPage()));
                     } else if (index == 3) {
                       Navigator.push(
                           context,
@@ -107,7 +106,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     }
                   });
                   index:
-                  2;
+                  1;
                 },
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
@@ -137,7 +136,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       duration: Duration(seconds: 1),
                       curve: Curves.fastLinearToSlowEaseIn,
                       width: index == currentIndex
-                          ? displayWidth * .35
+                          ? displayWidth * .32
                           : displayWidth * .18,
                       alignment: Alignment.center,
                       child: Stack(
@@ -148,7 +147,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                 duration: Duration(seconds: 1),
                                 curve: Curves.fastLinearToSlowEaseIn,
                                 width: index == currentIndex
-                                    ? displayWidth * .11
+                                    ? displayWidth * .13
                                     : 0,
                               ),
                               AnimatedOpacity(

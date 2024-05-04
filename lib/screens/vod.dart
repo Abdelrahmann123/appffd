@@ -32,13 +32,15 @@ class _VodafonePlaygroundPageState extends State<VodafonePlaygroundPage> {
   TimeOfDay? _selectedStartTime; // الوقت البدء
   TimeOfDay? _selectedEndTime; // الوقت الانتهاء
   File? _image;
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _phoneController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _selectedDate = DateTime.now();
-    _selectedStartTime = TimeOfDay.now();
-    _selectedEndTime = TimeOfDay(hour: _selectedStartTime!.hour + 1, minute: _selectedStartTime!.minute); // افتراض أن مدة الحجز ساعة واحدة
+    _selectedStartTime = TimeOfDay(hour: 10, minute: 0); // تعيين الوقت الابتدائي للتوقيت المتاح من الساعة 10 صباحًا
+    _selectedEndTime = TimeOfDay(hour: 1, minute: 0); // تعيين الوقت النهائي للتوقيت المتاح حتى الساعة 1 بعد منتصف الليل
   }
 
   @override
@@ -47,76 +49,133 @@ class _VodafonePlaygroundPageState extends State<VodafonePlaygroundPage> {
       appBar: AppBar(
         title: const Text('Vodafone Playground'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Icon(Icons.calendar_today),
-                SizedBox(width: 10),
-                Text(
-                  'Select Date:',
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_today),
+                  SizedBox(width: 10),
+                  Text(
+                    'Select Date:',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: _pickDate,
+              child: Container(
+                margin: EdgeInsets.all(16),
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.blue),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${_selectedDate?.toLocal()}'.split(' ')[0] ?? 'Select Date',
                   style: TextStyle(fontSize: 18),
                 ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: _pickDate,
-            child: Container(
-              margin: EdgeInsets.all(16),
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                '${_selectedDate?.toLocal()}'.split(' ')[0] ?? 'Select Date',
-                style: TextStyle(fontSize: 18),
               ),
             ),
-          ),
-          SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Icon(Icons.access_time),
-                SizedBox(width: 10),
-                Text(
-                  'Select Time:',
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Icon(Icons.access_time),
+                  SizedBox(width: 10),
+                  Text(
+                    'Select Time:',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: _pickTime,
+              child: Container(
+                margin: EdgeInsets.all(16),
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.blue),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${_selectedStartTime?.format(context)} - ${_selectedEndTime?.format(context)}' ?? 'Select Time',
                   style: TextStyle(fontSize: 18),
                 ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: _pickTime,
-            child: Container(
-              margin: EdgeInsets.all(16),
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blue),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                '${_selectedStartTime?.format(context)} - ${_selectedEndTime?.format(context)}' ?? 'Select Time',
-                style: TextStyle(fontSize: 18),
               ),
             ),
-          ),
-          SizedBox(height: 20),
-          Center(
-            child: ElevatedButton.icon(
-              onPressed: _uploadImageAndSaveData,
-              icon: Icon(Icons.upload),
-              label: Text('Upload Image & Save Data'),
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Icon(Icons.person),
+                  SizedBox(width: 10),
+                  Text(
+                    'Name:',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your name',
+                  contentPadding: EdgeInsets.all(16),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Icon(Icons.phone),
+                  SizedBox(width: 10),
+                  Text(
+                    'Phone Number:',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextFormField(
+                controller: _phoneController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your phone number',
+                  contentPadding: EdgeInsets.all(16),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                keyboardType: TextInputType.phone,
+              ),
+            ),
+            SizedBox(height: 20),
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: _uploadImageAndSaveData,
+                icon: Icon(Icons.upload),
+                label: Text('Upload Image & Save Data'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -162,20 +221,34 @@ class _VodafonePlaygroundPageState extends State<VodafonePlaygroundPage> {
       if (_selectedDate != null && _selectedStartTime != null && _selectedEndTime != null) {
         final startTimeAsString = _selectedTimeToString(_selectedStartTime!);
         final endTimeAsString = _selectedTimeToString(_selectedEndTime!);
+        final name = _nameController.text;
+        final phoneNumber = _phoneController.text;
+
+        // Check if the selected time is within working hours
+        final selectedStartTimeHour = _selectedStartTime!.hour;
+        final selectedEndTimeHour = _selectedEndTime!.hour;
+        if (selectedStartTimeHour < 10 || selectedEndTimeHour > 1) {
+          // If the selected time is before 10 AM or after 1 PM, display a message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Working hours are from 10 AM to 1 AM.'),
+            ),
+          );
+          return;
+        }
+
         final bookingData = {
           'date': _selectedDate,
           'start_time': startTimeAsString,
           'end_time': endTimeAsString,
-          // You can add more booking information here
+          'name': name,
+          'phone_number': phoneNumber,
         };
 
-        // Check if the selected time slot is already booked
         final isTimeSlotBooked = await _firestoreService.checkTimeSlotAvailability(bookingData);
         if (!isTimeSlotBooked) {
-          // Time slot is available, proceed to save the booking data
           await _firestoreService.saveBookingDataWithImage(bookingData, _image!);
         } else {
-          // Time slot is already booked, show a message to the user
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('This time slot is already booked. Please select another time.'),
@@ -211,28 +284,22 @@ class FirestoreService {
           .where('end_time', isGreaterThan: startTime)
           .get();
 
-      // If there are any documents returned, it means the time slot is already booked
       return querySnapshot.docs.isNotEmpty;
     } catch (error) {
       print('Error checking time slot availability: $error');
-      return true; // Assuming there's an error, so treat it as the time slot is already booked
+      return true;
     }
   }
 
   Future<void> saveBookingDataWithImage(Map<String, dynamic> bookingData, File image) async {
     try {
-      // Upload the image to Firebase Storage
-      // For simplicity, I'm assuming you have already set up Firebase Storage and have a reference to the location where you want to save the image
-      // Replace 'images' with your actual storage path
       final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}');
       final uploadTask = storageRef.putFile(image);
       final TaskSnapshot downloadUrl = (await uploadTask);
       final String imageUrl = await downloadUrl.ref.getDownloadURL();
 
-      // Add the image URL to the booking data
       bookingData['image_url'] = imageUrl;
 
-      // Save the booking data to Firestore
       await _firestore.collection('bookings').add(bookingData);
 
       print('Booking data saved successfully!');
@@ -240,4 +307,8 @@ class FirestoreService {
       print('Error saving booking data: $error');
     }
   }
+}
+
+void main() {
+  runApp(VodafonePlayground());
 }

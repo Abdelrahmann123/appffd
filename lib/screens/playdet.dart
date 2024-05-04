@@ -35,7 +35,7 @@ class PlaygroundDetailsPage extends StatelessWidget {
               width: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(playgroundData['imageUrl'][0]), // استخدام أول صورة من المصفوفة imageUrl
+                  image: NetworkImage(playgroundData['imageUrl'][0]),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -56,16 +56,18 @@ class PlaygroundDetailsPage extends StatelessWidget {
                   SizedBox(height: 16),
                   _buildDetail('Sport Type:', playgroundData['type']),
                   SizedBox(height: 16),
-                  _buildDetail('Description:', playgroundData['stadiumDetails']),
+                  _buildDetail(
+                      'Description:', playgroundData['stadiumDetails']),
                   SizedBox(height: 16),
-
                   ElevatedButton(
                     onPressed: () {
-                      _bookPlayground(context); // استدعاء الدالة المحدثة لحجز الملعب
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => VodafonePlayground()),
+                      );
                     },
                     child: Text('Book Playground'),
                   ),
-
                   SizedBox(height: 16),
                 ],
               ),
@@ -81,69 +83,69 @@ class PlaygroundDetailsPage extends StatelessWidget {
       return Container();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
+    return Container(
+      padding: EdgeInsets.all(15),
+      margin: EdgeInsets.only(bottom: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            offset: Offset(0, 2),
+            blurRadius: 6,
           ),
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.grey[200],
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          child: Text(
-            '$data',
-            style: TextStyle(
-              fontSize: 18,
-            ),
+          SizedBox(height: 16),
+          Text(
+            data,
+            style: TextStyle(fontSize: 16),
           ),
-        ),
-        SizedBox(height: 16),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildLocationButton(String label, String location) {
-    return GestureDetector(
-      onTap: () {
+    return TextButton(
+      onPressed: () {
         _launchGoogleMaps(location);
       },
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: Colors.blue,
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+          EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 18,
-            color: Colors.white,
+        shape: MaterialStateProperty.all<OutlinedBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
           ),
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 18,
+          color: Colors.white,
         ),
       ),
     );
   }
 
   _launchGoogleMaps(String location) async {
-    final url = 'https://www.google.com/maps/search/?api=1&query=$location';
+    final url = location;
     if (await canLaunch(url)) {
       await launch(url);
     } else {
       throw 'Could not launch $url';
     }
-  }
-
-  void _bookPlayground(BuildContext context) async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => VodafonePlayground()),
-    );
   }
 }

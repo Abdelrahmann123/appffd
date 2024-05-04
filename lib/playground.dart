@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:untitled17/screens/playdet.dart';
 
 class Playground extends StatefulWidget {
@@ -89,9 +88,7 @@ class _PlaygroundState extends State<Playground> {
                 ),
                 FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
                   future: (selectedCity.isEmpty)
-                      ? FirebaseFirestore.instance
-                      .collection('stadiums')
-                      .get()
+                      ? FirebaseFirestore.instance.collection('stadiums').get()
                       : FirebaseFirestore.instance
                       .collection('stadiums')
                       .where('city', isEqualTo: selectedCity)
@@ -152,7 +149,6 @@ class PlaygroundCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // استخراج قائمة الصور من المصفوفة داخل imageUrl
     List<String> imageUrls = (data['imageUrl'] as List<dynamic>).cast<String>();
-
     final price = data['price'] as String? ?? '';
     final name = data['name'] as String? ?? '';
 
@@ -194,7 +190,13 @@ class NewWidget extends StatelessWidget {
   final String name;
   final String price;
 
-  const NewWidget({Key? key, required this.imge, required this.data, required this.name, required this.price}) : super(key: key);
+  const NewWidget(
+      {Key? key,
+        required this.imge,
+        required this.data,
+        required this.name,
+        required this.price})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -209,7 +211,7 @@ class NewWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
         ),
         child: Card(
-          elevation: 5,
+          elevation: 10,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
@@ -217,7 +219,7 @@ class NewWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                flex: 10,
+                flex: 3,
                 child: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
@@ -231,7 +233,7 @@ class NewWidget extends StatelessWidget {
                 ),
               ),
               Expanded(
-                flex: 5,
+                flex: 2,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
@@ -309,7 +311,6 @@ class Category extends StatelessWidget {
 
   Widget categoryIcon(String text, String image) {
     return SizedBox(
-      width: 65,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

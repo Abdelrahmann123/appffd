@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:untitled17/forgetpass.dart';
 
 import '../main.dart';
 
@@ -11,7 +10,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   bool notificationsEnabled = true;
-  String selectedLanguage = 'English';
+  String selectedLanguage = 'Arabic';
 
   @override
   Widget build(BuildContext context) {
@@ -123,14 +122,6 @@ class _SettingsPageState extends State<SettingsPage> {
               style: TextStyle(color: textColor),
             ),
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return ForgotPassScreen();
-                  },
-                ),
-              );
-
               // Add your navigation logic here
               print('Change Password tapped');
             },

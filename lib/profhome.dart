@@ -1,28 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:untitled17/screens/history.dart';
 import 'package:untitled17/screens/home_page.dart';
 import 'package:untitled17/screens/side_menu.dart';
-
-import 'fav.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'notif.dart';
-
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Your App Title',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: ProfilePage(), // تحديد صفحة البداية للتطبيق
-    );
-  }
-}
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -32,6 +18,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late User user;
   late Map<String, dynamic> userData;
+  var currentIndex = 3;
 
   @override
   void initState() {
@@ -68,6 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    double displayWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
@@ -83,87 +71,223 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(userData['profileImageUrl'] ?? ''),
+            GestureDetector(
+              onTap: () {
+                // Add your camera functionality here
+              },
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: userData['profileImageUrl'] != null
+                    ? FileImage(File(userData['profileImageUrl']))
+                    : null,
+                child: Container(
+                  color: Colors.transparent,
+                  margin: EdgeInsets.only(top: 65, left: 70),
+                  child: IconButton(
+                    icon: Icon(Icons.camera_alt, color: Colors.black38),
+                    onPressed: () async {
+                      final picker = ImagePicker();
+                      final pickedImage =
+                      await picker.getImage(source: ImageSource.gallery);
+
+                      if (pickedImage != null) {
+                        // تم اختيار صورة من المعرض بنجاح
+                        // يمكنك تحديث الصورة في الحالة الخاصة بك أو إجراء أي معالجة أخرى
+                        setState(() {
+                          userData['profileImageUrl'] = pickedImage.path;
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ),
             ),
             SizedBox(height: 20),
             Card(
               child: ListTile(
-                title: Text('الاسم'),
+                title: Text('Name'),
                 subtitle: Text(userData['name'] ?? ''),
               ),
             ),
             Card(
               child: ListTile(
-                title: Text('رقم الهاتف'),
+                title: Text('Phone Number'),
                 subtitle: Text(userData['phone'] ?? ''),
               ),
             ),
             Card(
               child: ListTile(
-                title: Text('تاريخ الميلاد'),
+                title: Text('Birthdate'),
                 subtitle: Text(userData['birthdate'] ?? ''),
               ),
             ),
             Card(
               child: ListTile(
-                title: Text('المحافظة'),
+                title: Text('City'),
                 subtitle: Text(userData['city'] ?? ''),
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Color(0xffF5F5F5),
-        color: Color.fromARGB(255, 209, 212, 217),
-        animationDuration: Duration(milliseconds: 300),
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => HomePage(),
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.all(displayWidth * .05),
+        height: displayWidth * .155,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(.1),
+                blurRadius: 30,
+                offset: Offset(0, 10),
+              ),
+            ],
+            borderRadius: BorderRadius.circular(50)),
+        child: StatefulBuilder(
+          builder: (context, setStateHistory) {
+            return ListView.builder(
+              itemCount: 4,
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: displayWidth * .02),
+              itemBuilder: (context, index) => InkWell(
+                onTap: () {
+                  setState(() {
+                    currentIndex = index;
+                    // Navigate to the corresponding page based on the index
+                    if (index == 0) {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => HomePage()));
+                    } else if (index == 1) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HistoryPage()));
+                    } else if (index == 2) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NotificationsPage()));
+                    }
+                  });
+                  index:
+                  3;
+                },
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                child: Stack(
+                  children: [
+                    AnimatedContainer(
+                      duration: Duration(seconds: 1),
+                      curve: Curves.fastLinearToSlowEaseIn,
+                      width: index == currentIndex
+                          ? displayWidth * .32
+                          : displayWidth * .18,
+                      alignment: Alignment.center,
+                      child: AnimatedContainer(
+                        duration: Duration(seconds: 1),
+                        curve: Curves.fastLinearToSlowEaseIn,
+                        height: index == currentIndex ? displayWidth * .12 : 0,
+                        width: index == currentIndex ? displayWidth * .32 : 0,
+                        decoration: BoxDecoration(
+                            color: index == currentIndex
+                                ? Color.fromARGB(255, 134, 140, 143)
+                                .withOpacity(.2)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(50)),
+                      ),
+                    ),
+                    AnimatedContainer(
+                      duration: Duration(seconds: 1),
+                      curve: Curves.fastLinearToSlowEaseIn,
+                      width: index == currentIndex
+                          ? displayWidth * .32
+                          : displayWidth * .18,
+                      alignment: Alignment.center,
+                      child: Stack(
+                        children: [
+                          Row(
+                            children: [
+                              AnimatedContainer(
+                                duration: Duration(seconds: 1),
+                                curve: Curves.fastLinearToSlowEaseIn,
+                                width: index == currentIndex
+                                    ? displayWidth * .13
+                                    : 0,
+                              ),
+                              AnimatedOpacity(
+                                opacity: index == currentIndex ? 1 : 0,
+                                duration: Duration(seconds: 1),
+                                curve: Curves.fastLinearToSlowEaseIn,
+                                child: Text(
+                                  index == currentIndex
+                                      ? '${listOfString[index]}'
+                                      : '',
+                                  style: TextStyle(
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              AnimatedContainer(
+                                duration: Duration(seconds: 1),
+                                curve: Curves.fastLinearToSlowEaseIn,
+                                width: index == currentIndex
+                                    ? displayWidth * .03
+                                    : 20,
+                              ),
+                              index == 1
+                                  ? ScaleTransition(
+                                scale: CurvedAnimation(
+                                    parent: AlwaysStoppedAnimation(1),
+                                    curve: Curves.fastLinearToSlowEaseIn),
+                                child: Icon(
+                                  listOfIcons[index],
+                                  size: displayWidth * .076,
+                                  color: index == currentIndex
+                                      ? Colors.black87
+                                      : Colors.black26,
+                                ),
+                              )
+                                  : Icon(
+                                listOfIcons[index],
+                                size: displayWidth * .076,
+                                color: index == currentIndex
+                                    ? Colors.black87
+                                    : Colors.black26,
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
-          } else if (index == 1) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => FavoritesPage(),
-              ),
-            );
-          } else if (index == 2) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => NotificationsPage(),
-              ),
-            );
-          } else if (index == 3) {
-            // Do nothing since we are already on Profile page
-          }
-        },
-        index: 3, // تحديد التحديد عند الزر الخاص بالحساب
-        items: [
-          Icon(
-            Icons.home,
-            color: Colors.black,
-          ),
-          Icon(
-            Icons.favorite,
-            color: Colors.black,
-          ),
-          Icon(
-            Icons.notifications,
-            color: Colors.black,
-          ),
-          Icon(
-            Icons.account_circle_rounded,
-            color: Colors.black,
-          ),
-        ],
+          },
+        ),
       ),
     );
   }
+
+  List<String> listOfString = [
+    'Home',
+    'History',
+    'Notification',
+    'Profile',
+  ];
+
+  List<IconData> listOfIcons = [
+    Icons.home_rounded,
+    Icons.history_rounded,
+    Icons.notifications_active,
+    Icons.person_rounded,
+  ];
 }
 
 class EditProfilePage extends StatefulWidget {

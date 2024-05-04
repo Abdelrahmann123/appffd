@@ -38,10 +38,10 @@ class CheckUserPage extends StatelessWidget {
         } else {
           if (snapshot.data != null && snapshot.data!) {
             // المستخدم مسجل بياناته في كولكشن المدربين في فايربيس
-            return const NewPage();
+            return TrainerHomePage();
           } else {
             // المستخدم ليس لديه بيانات في كولكشن المدربين في فايربيس
-            return  TrainerResPage();
+            return TrainerResPage();
           }
         }
       },
@@ -54,8 +54,10 @@ class CheckUserPage extends StatelessWidget {
 
       if (user != null) {
         // قم بفحص ما إذا كان لديك بيانات للمستخدم في كولكشن المدربين في فايربيس
-        DocumentSnapshot userData =
-        await FirebaseFirestore.instance.collection('trainers').doc(user.uid).get();
+        DocumentSnapshot userData = await FirebaseFirestore.instance
+            .collection('trainers')
+            .doc(user.uid)
+            .get();
 
         // إذا كان هناك بيانات للمستخدم، فهو مسجل في كولكشن المدربين
         return userData.exists;
@@ -68,25 +70,6 @@ class CheckUserPage extends StatelessWidget {
     }
   }
 }
-class NewPage extends StatelessWidget {
-  const NewPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('New Page'),
-      ),
-      body: const Center(
-        child: Text('This is a new page.'),
-      ),
-      drawer: const SideMenu(),
-    );
-  }
-}
-
-
-
 
 class SideMenu extends StatelessWidget {
   const SideMenu({Key? key}) : super(key: key);
@@ -126,25 +109,33 @@ class SideMenu extends StatelessWidget {
               User? user = FirebaseAuth.instance.currentUser;
 
               if (user != null) {
-                // قم بفحص ما إذا كان لديك بيانات للمستخدم في كولكشن المدربين في فايربيس
-                DocumentSnapshot userData =
-                await FirebaseFirestore.instance.collection('trainers').doc(user.uid).get();
+                try {
+                  DocumentSnapshot userData = await FirebaseFirestore.instance
+                      .collection('approved_trainers')
+                      .doc(user.uid)
+                      .get();
 
-                // إذا لم يكن هناك بيانات، فقم بفتح صفحة التسجيل
-                if (!userData.exists) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) =>  TrainerResPage()),
-                  );
-                } else {
-                  // إذا كانت هناك بيانات، فقم بفتح الصفحة الجديدة
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const NewPage()),
-                  );
+                  // Check if user data exists
+                  if (userData.exists) {
+                    // If data exists, navigate to TrainerHomePage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => TrainerHomePage()),
+                    );
+                  } else {
+                    // If data doesn't exist, navigate to TrainerResPage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => TrainerResPage()),
+                    );
+                  }
+                } catch (e) {
+                  // Print error message for debugging
+                  print('Error checking user: $e');
                 }
               }
             }),
+
             _buildMenuItem('Setting', Icons.settings, () {
               Navigator.push(
                 context,
@@ -154,21 +145,78 @@ class SideMenu extends StatelessWidget {
             _buildMenuItem('Profile', Icons.person, () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) =>  ProfilePage()),
+                MaterialPageRoute(builder: (context) => ProfilePage()),
               );
             }),
-            _buildMenuItem('Search', Icons.search, () {}),
-            _buildMenuItem('Saved', Icons.bookmark, () {}),
-            _buildMenuItem('Favorites', Icons.favorite, () {}),
+            _buildMenuItem('Search', Icons.search, () {
+              // اضف الاجراء الذي تريده لهذا الزر
+            }),
+            _buildMenuItem('Saved', Icons.bookmark, () {
+              // اضف الاجراء الذي تريده لهذا الزر
+            }),
+            _buildMenuItem('Favorites', Icons.favorite, () {
+              // اضف الاجراء الذي تريده لهذا الزر
+            }),
             const Divider(
               color: Colors.white,
             ),
             _buildMenuItem('Log out', Icons.logout, () {
               Navigator.popUntil(context, ModalRoute.withName('/'));
             }),
+
+            // هنا يمكنك إضافة زر جديد
+            _buildMenuItem('Trainer', Icons.accessibility_sharp, () {
+              // طلب كلمة المرور
+              _requestPassword(context, () {
+                // عند التحقق من صحة كلمة المرور، قم بفتح الصفحة
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TrainerHomePage()),
+                );
+              });
+            }),
           ],
         ),
       ),
+    );
+  }
+
+  void _requestPassword(BuildContext context, Function onPasswordVerified) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String enteredPassword = '';
+        return AlertDialog(
+          title: Text('Enter Password'),
+          content: TextField(
+            obscureText: true,
+            onChanged: (value) {
+              enteredPassword = value;
+            },
+            decoration: InputDecoration(hintText: 'Enter your password'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // التحقق من صحة كلمة المرور
+                if (enteredPassword == '123456') {
+                  Navigator.of(context).pop();
+                  onPasswordVerified(); // تنفيذ العملية عندما تكون كلمة المرور صحيحة
+                } else {
+                  // إعلام المستخدم بأن كلمة المرور غير صحيحة
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Incorrect password. Please try again.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -202,4 +250,3 @@ class SettingPage extends StatelessWidget {
     );
   }
 }
-// ... Other page classes ...

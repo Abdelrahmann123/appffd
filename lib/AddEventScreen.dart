@@ -1,16 +1,17 @@
+import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:untitled17/events.dart';
 
 class AddEventScreen extends StatefulWidget {
   @override
   _AddEventScreenState createState() => _AddEventScreenState();
 }
 
-class _AddEventScreenState extends State<AddEventScreen> {
+class _AddEventScreenState extends State {
   List<File> _selectedImages = [];
   String? _selectedEventType;
   String? _phoneNumber;
@@ -22,6 +23,9 @@ class _AddEventScreenState extends State<AddEventScreen> {
   bool? _insurance;
   bool? _haveBike;
   double? _distance;
+  bool _isLoading = false; // حالة لعرض شاشة التحميل
+  TextEditingController _startLocationController = TextEditingController();
+  TextEditingController _endLocationController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -48,7 +52,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
     for (var image in images) {
       try {
         String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-        Reference ref = FirebaseStorage.instance.ref().child('images/$fileName.jpg');
+        Reference ref =
+        FirebaseStorage.instance.ref().child('images/$fileName.jpg');
         UploadTask uploadTask = ref.putFile(image);
         TaskSnapshot snapshot = await uploadTask;
         String imageUrl = await snapshot.ref.getDownloadURL();
@@ -63,7 +68,12 @@ class _AddEventScreenState extends State<AddEventScreen> {
 
   void _addEventToFirestore() async {
     if (_formKey.currentState!.validate()) {
-      CollectionReference events = FirebaseFirestore.instance.collection('events');
+      setState(() {
+        _isLoading = true; // عرض شاشة التحميل
+      });
+
+      CollectionReference events =
+      FirebaseFirestore.instance.collection('events');
 
       List<String> imageUrls = await _uploadImages(_selectedImages);
 
@@ -79,16 +89,44 @@ class _AddEventScreenState extends State<AddEventScreen> {
         'haveBike': _haveBike,
         'eventType': _selectedEventType,
         'images': imageUrls,
-        'userId': FirebaseAuth.instance.currentUser!.uid, // Add current user ID
-        'date': DateTime.now(), // Add current date
+        'userId': FirebaseAuth.instance.currentUser!.uid,
+        'date': DateTime.now(),
       }).then((value) {
         print("Event added with ID: ${value.id}");
         _formKey.currentState!.reset();
         setState(() {
           _selectedImages.clear();
+          _isLoading = false; // إخفاء شاشة التحميل بعد اكتمال الرفع
         });
+        // عرض رسالة تأكيدية
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Success"),
+              content:
+              Text("Your event has been submitted and will be reviewed."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // إغلاق الرسالة التأكيدية
+                    Navigator.pushReplacement(
+                      // الانتقال إلى صفحة EventCard
+                      context,
+                      MaterialPageRoute(builder: (context) => EventList()),
+                    );
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
       }).catchError((error) {
         print("Failed to add event: $error");
+        setState(() {
+          _isLoading = false; // إخفاء شاشة التحميل في حالة حدوث خطأ
+        });
       });
     }
   }
@@ -99,7 +137,11 @@ class _AddEventScreenState extends State<AddEventScreen> {
       appBar: AppBar(
         title: Text('Add Event'),
       ),
-      body: Padding(
+      body: _isLoading // شاشة التحميل
+          ? Center(
+        child: CircularProgressIndicator(),
+      )
+          : Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Form(
@@ -187,15 +229,19 @@ class _AddEventScreenState extends State<AddEventScreen> {
                       _distance = null;
                     });
                   },
-                  items: <String>['Cycling Event', 'Running Event', 'Football Event']
-                      .map<DropdownMenuItem<String>>((String value) {
+                  items: <String>[
+                    'Cycling Event',
+                    'Running Event',
+                    'Football Event'
+                  ].map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
                     );
                   }).toList(),
                 ),
-                if (_selectedEventType == 'Cycling Event' || _selectedEventType == 'Running Event') ...[
+                if (_selectedEventType == 'Cycling Event' ||
+                    _selectedEventType == 'Running Event') ...[
                   SizedBox(height: 20),
                   Row(
                     children: [
@@ -245,7 +291,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
                               _fee = value;
                             });
                           },
-                          items: <bool?>[true, false].map<DropdownMenuItem<bool>>(
+                          items: <bool?>[true, false]
+                              .map<DropdownMenuItem<bool>>(
                                 (bool? value) {
                               return DropdownMenuItem<bool>(
                                 value: value,
@@ -268,7 +315,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
                               _insurance = value;
                             });
                           },
-                          items: <bool?>[true, false].map<DropdownMenuItem<bool>>(
+                          items: <bool?>[true, false]
+                              .map<DropdownMenuItem<bool>>(
                                 (bool? value) {
                               return DropdownMenuItem<bool>(
                                 value: value,
@@ -293,7 +341,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           _haveBike = value;
                         });
                       },
-                      items: <bool?>[true, false].map<DropdownMenuItem<bool>>(
+                      items: <bool?>[true, false]
+                          .map<DropdownMenuItem<bool>>(
                             (bool? value) {
                           return DropdownMenuItem<bool>(
                             value: value,
@@ -344,10 +393,58 @@ class _AddEventScreenState extends State<AddEventScreen> {
                   },
                 ),
                 SizedBox(height: 20),
+                TextFormField(
+                  controller: _startLocationController,
+                  decoration: InputDecoration(
+                    labelText: 'Start Location (Google Maps Link)',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter start location';
+                    }
+                    // التحقق من أن الرابط يبدأ بـ https://maps.google.com
+                    if (!(value.startsWith('https://maps.google.com') ||
+                        value.startsWith('https://maps.app.goo.gl'))) {
+                      return 'Please enter a valid Google Maps link';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                TextFormField(
+                  controller: _endLocationController,
+                  decoration: InputDecoration(
+                    labelText: 'End Location (Google Maps Link)',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter end location';
+                    }
+                    // التحقق من أن الرابط يبدأ بـ https://maps.google.com
+                    if (!(value.startsWith('https://maps.google.com') ||
+                        value.startsWith('https://maps.app.goo.gl'))) {
+                      return 'Please enter a valid Google Maps link';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _addEventToFirestore,
-                  child: Text('Add Event'),
-                ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                    Color.fromARGB(255, 41, 169, 92), // لون الخلفية
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.circular(30), // تدوير الحواف
+                    ),
+                    padding: EdgeInsets.symmetric(
+                        vertical: 15), // الهامش الداخلي
+                  ),
+                  child: Text('Add Event'), // نص الزر
+                )
               ],
             ),
           ),

@@ -194,7 +194,7 @@ class ProductCard extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Image.asset(
-                                'images/ASS.png',
+                                'images/whatsapp.png',
                                 width: MediaQuery.of(context).size.width * 0.06,
                                 height:
                                 MediaQuery.of(context).size.width * 0.06,
@@ -248,13 +248,15 @@ class ProductCard extends StatelessWidget {
 
   void launchWhatsApp(BuildContext context, {required String number}) async {
     String whatsappUrl = "https://wa.me/+2$number";
-    await canLaunch(whatsappUrl)
-        ? launch(whatsappUrl)
-        : ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Could not launch WhatsApp'),
-      ),
-    );
+    if (await canLaunch(whatsappUrl)) {
+      await launch(whatsappUrl);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not launch WhatsApp for this number: $number '),
+        ),
+      );
+    }
   }
 
   void launchPhoneCall(BuildContext context, {required String number}) async {

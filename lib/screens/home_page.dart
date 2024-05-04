@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/services.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:untitled17/playground.dart';
 import 'package:untitled17/profhome.dart';
 import 'package:untitled17/screens/playdet.dart';
 import 'package:untitled17/screens/side_menu.dart';
 import '../events.dart';
-import '../fav.dart';
 import '../modareb.dart';
 import '../notif.dart';
 import '../pro.dart';
+import 'history.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key});
@@ -24,10 +24,11 @@ class _HomePageState extends State<HomePage> {
   double yoffset = 0;
   bool isDrawerOpen = false;
 
+  var currentIndex = 0;
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
-
+    double displayWidth = MediaQuery.of(context).size.width;
     return WillPopScope(
       onWillPop: () async {
         SystemNavigator.pop();
@@ -35,50 +36,156 @@ class _HomePageState extends State<HomePage> {
       },
       child: Scaffold(
         backgroundColor: Color(0xffF5F5F5),
-        bottomNavigationBar: CurvedNavigationBar(
-          backgroundColor: Color(0xffF5F5F5),
-          color: Color.fromARGB(255, 209, 212, 217),
-          animationDuration: Duration(milliseconds: 300),
-          onTap: (index) {
-            if (index == 1) {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => FavoritesPage(),
+        bottomNavigationBar: Container(
+          margin: EdgeInsets.only(
+              bottom: displayWidth * .05,
+              right: displayWidth * .05,
+              left: displayWidth * .05),
+          height: displayWidth * .155,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(.5),
+                blurRadius: 30,
+                offset: Offset(0, 10),
+              ),
+            ],
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: StatefulBuilder(
+            builder: (context, setStateHome) {
+              return ListView.builder(
+                itemCount: 4,
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(horizontal: displayWidth * .02),
+                itemBuilder: (context, index) => InkWell(
+                  onTap: () {
+                    setState(
+                          () {
+                        currentIndex = index;
+                        // Navigate to the corresponding page based on the index
+                        if (index == 1) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HistoryPage()),
+                          );
+                        } else if (index == 2) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => NotificationsPage()),
+                          );
+                        } else if (index == 3) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ProfilePage()));
+                        }
+                      },
+                    );
+                    index:
+                    0;
+                  },
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  child: Stack(
+                    children: [
+                      AnimatedContainer(
+                        duration: Duration(seconds: 1),
+                        curve: Curves.fastLinearToSlowEaseIn,
+                        width: index == currentIndex
+                            ? displayWidth * .32
+                            : displayWidth * .18,
+                        alignment: Alignment.center,
+                        child: AnimatedContainer(
+                          duration: Duration(seconds: 1),
+                          curve: Curves.fastLinearToSlowEaseIn,
+                          height:
+                          index == currentIndex ? displayWidth * .12 : 0,
+                          width: index == currentIndex ? displayWidth * .32 : 0,
+                          decoration: BoxDecoration(
+                            color: index == currentIndex
+                                ? Color.fromARGB(255, 134, 140, 143)
+                                .withOpacity(.2)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                        ),
+                      ),
+                      AnimatedContainer(
+                        duration: Duration(seconds: 1),
+                        curve: Curves.fastLinearToSlowEaseIn,
+                        width: index == currentIndex
+                            ? displayWidth * .32
+                            : displayWidth * .18,
+                        alignment: Alignment.center,
+                        child: Stack(
+                          children: [
+                            Row(
+                              children: [
+                                AnimatedContainer(
+                                  duration: Duration(seconds: 1),
+                                  curve: Curves.fastLinearToSlowEaseIn,
+                                  width: index == currentIndex
+                                      ? displayWidth * .13
+                                      : 0,
+                                ),
+                                AnimatedOpacity(
+                                  opacity: index == currentIndex ? 1 : 0,
+                                  duration: Duration(seconds: 1),
+                                  curve: Curves.fastLinearToSlowEaseIn,
+                                  child: Text(
+                                    index == currentIndex
+                                        ? '${listOfString[index]}'
+                                        : '',
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                AnimatedContainer(
+                                  duration: Duration(seconds: 1),
+                                  curve: Curves.fastLinearToSlowEaseIn,
+                                  width: index == currentIndex
+                                      ? displayWidth * .03
+                                      : 20,
+                                ),
+                                index == currentIndex
+                                    ? ScaleTransition(
+                                  scale: CurvedAnimation(
+                                    parent: AlwaysStoppedAnimation(1),
+                                    curve: Curves.fastLinearToSlowEaseIn,
+                                  ),
+                                  child: Icon(
+                                    listOfIcons[index],
+                                    size: displayWidth * .076,
+                                    color: Colors.black87,
+                                  ),
+                                )
+                                    : Icon(
+                                  listOfIcons[index],
+                                  size: displayWidth * .076,
+                                  color: Colors.black26,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
-            } else if (index == 2) {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => NotificationsPage(),
-                ),
-              );
-            } else if (index == 3) {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => ProfilePage(),
-                ),
-              );
-            }
-          },
-          index: 0,
-          items: [
-            Icon(
-              Icons.home,
-              color: Colors.black,
-            ),
-            Icon(
-              Icons.favorite,
-              color: Colors.black,
-            ),
-            Icon(
-              Icons.notifications,
-              color: Colors.black,
-            ),
-            Icon(
-              Icons.account_circle_rounded,
-              color: Colors.black,
-            ),
-          ],
+            },
+          ),
         ),
         drawer: SideMenu(),
         body: SingleChildScrollView(
@@ -88,11 +195,11 @@ class _HomePageState extends State<HomePage> {
               Stack(
                 children: [
                   Transform.rotate(
-                    origin: Offset(30, -60),
+                    origin: Offset(20, -60),
                     angle: 2.4,
                     child: Container(
                       margin: EdgeInsets.only(
-                        left: 65,
+                        left: 60,
                         top: 40,
                       ),
                       height: screenSize.height * 0.6,
@@ -102,148 +209,159 @@ class _HomePageState extends State<HomePage> {
                         gradient: LinearGradient(
                           begin: Alignment.bottomLeft,
                           colors: [
+                            Color.fromARGB(255, 207, 207, 213),
                             Color.fromARGB(255, 134, 140, 143),
-                            Color.fromARGB(255, 209, 212, 217),
+                            Color.fromARGB(255, 207, 207, 213),
                           ],
                         ),
                       ),
                     ),
                   ),
-                  SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        AppBar(
-                          backgroundColor: Color.fromARGB(255, 221, 225, 231),
-                          iconTheme: IconThemeData.fallback(),
-                          title: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                Container(
-                                  child: CircleAvatar(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(20),
-                                      child: const Image(
-                                        fit: BoxFit.cover,
-                                        image: AssetImage(
-                                            'images/spooooortttt.png'),
+                  LiquidPullToRefresh(
+                    onRefresh: () async {
+                      // قم بإعادة تحميل البيانات من Firebase هنا
+                      // يمكنك استدعاء الدوال اللازمة لإعادة تحميل البيانات
+                    },
+                    child: SingleChildScrollView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          AppBar(
+                            backgroundColor: Color.fromARGB(255, 134, 140, 143),
+                            iconTheme: IconThemeData.fallback(),
+                            title: Container(
+                              margin:
+                              const EdgeInsets.symmetric(horizontal: 20),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: <Widget>[
+                                  Container(
+                                    child: CircleAvatar(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: const Image(
+                                          fit: BoxFit.cover,
+                                          image: AssetImage(
+                                              'images/spooooortttt.png'),
+                                        ),
                                       ),
                                     ),
                                   ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            margin: EdgeInsets.symmetric(horizontal: 15),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: <Widget>[
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Slider(),
+                                SizedBox(
+                                  height: 25,
+                                ),
+                                Center(
+                                  child: Text(
+                                    "What are you looking for?",
+                                    style: TextStyle(
+                                      fontSize: 25,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 25,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) {
+                                              return EventScreen();
+                                            },
+                                          ),
+                                        );
+                                      },
+                                      child: NewPadding(
+                                        image:
+                                        'images/Fitness_couple_running_vector_image_on_VectorStock-removebg-preview.png',
+                                        text: 'Events',
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) {
+                                              return Playground();
+                                            },
+                                          ),
+                                        );
+                                      },
+                                      child: NewPadding(
+                                        image:
+                                        'images/3a523d32-8218-4bb6-b3bb-a02b56bd7e58-removebg-preview.png',
+                                        text: 'Playground',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 30,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) {
+                                              return DisplayTrainersPage();
+                                            },
+                                          ),
+                                        );
+                                      },
+                                      child: NewPadding(
+                                        image:
+                                        'images/WhatsApp_Image_2023-12-13_at_10.33.02_PM-removebg-preview.png',
+                                        text: 'Trainers',
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) {
+                                              return DisplayProductsPage();
+                                            },
+                                          ),
+                                        );
+                                      },
+                                      child: NewPadding(
+                                        image:
+                                        'images/ea819bf4-ebaf-49d0-9acd-60d8f0ee9aad-removebg-preview.png',
+                                        text: 'Swap',
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: 15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: <Widget>[
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Slider(),
-                              SizedBox(
-                                height: 25,
-                              ),
-                              Text(
-                                "What are you looking for?",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 25,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) {
-                                            return EventScreen();
-                                          },
-                                        ),
-                                      );
-                                    },
-                                    child: NewPadding(
-                                      image:
-                                      'images/Fitness_couple_running_vector_image_on_VectorStock-removebg-preview.png',
-                                      text: 'Events',
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) {
-                                            return Playground();
-                                          },
-                                        ),
-                                      );
-                                    },
-                                    child: NewPadding(
-                                      image:
-                                      'images/3a523d32-8218-4bb6-b3bb-a02b56bd7e58-removebg-preview.png',
-                                      text: 'Playground',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 30,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) {
-                                            return DisplayTrainersPage();
-                                          },
-                                        ),
-                                      );
-                                    },
-                                    child: NewPadding(
-                                      image:
-                                      'images/WhatsApp_Image_2023-12-13_at_10.33.02_PM-removebg-preview.png',
-                                      text: 'Trainers',
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) {
-                                            return DisplayProductsPage();
-                                          },
-                                        ),
-                                      );
-                                    },
-                                    child: NewPadding(
-                                      image:
-                                      'images/ea819bf4-ebaf-49d0-9acd-60d8f0ee9aad-removebg-preview.png',
-                                      text: 'Swap',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -254,6 +372,20 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  List<String> listOfString = [
+    'Home',
+    'History',
+    'Notification',
+    'Profile',
+  ];
+
+  List<IconData> listOfIcons = [
+    Icons.home_rounded,
+    Icons.history_rounded,
+    Icons.notifications_active,
+    Icons.person_rounded,
+  ];
 }
 
 class NewPadding extends StatelessWidget {
@@ -285,10 +417,10 @@ class NewPadding extends StatelessWidget {
               ),
             ),
             Container(
-              width: 83,
+              width: 100,
               height: 25,
               color: Color(0xffF5F5F5),
-              margin: EdgeInsets.only(top: 125, left: 34, bottom: 25),
+              margin: EdgeInsets.only(top: 125, left: 30, bottom: 25),
               child: Center(
                 child: Text(
                   text,

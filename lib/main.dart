@@ -1,4 +1,3 @@
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -8,26 +7,32 @@ import 'package:untitled17/screens/home_page.dart';
 
 import 'events.dart';
 import 'modules/screens/splash_screen1.dart';
-// Import the firebase_options.dart file
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  ThemeMode savedThemeMode = ThemeMode.values[prefs.getInt('themeMode') ?? 0];
-  runApp(ChangeNotifierProvider(
-    create: (context) => ThemeProvider(savedThemeMode),
-    child: MyApp(),
-  ),);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(ChangeNotifierProvider(
-    create: (context) => ThemeProvider(savedThemeMode),
-    child: MyApp(),
-  ),);
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  ThemeMode savedThemeMode = ThemeMode.values[prefs.getInt('themeMode') ?? 0];
+
+  Widget homeScreen = isLoggedIn ? HomePage() : HomePage();
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeProvider(savedThemeMode),
+      child: MyApp(homeScreen: homeScreen),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
+  final Widget homeScreen;
+
+  MyApp({required this.homeScreen});
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
@@ -37,12 +42,13 @@ class MyApp extends StatelessWidget {
           themeMode: themeProvider.themeMode,
           theme: ThemeData.light(),
           darkTheme: ThemeData.dark(),
-          home: SplashScreen(),
+          home: homeScreen,
         );
       },
     );
   }
 }
+
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform => FirebaseOptions(
     apiKey: "AIzaSyCdPXhfGyTxUHiPQDc3_ToZ5vcKF3miNtc",
