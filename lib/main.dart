@@ -18,7 +18,7 @@ Future<void> main() async {
   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
   ThemeMode savedThemeMode = ThemeMode.values[prefs.getInt('themeMode') ?? 0];
 
-  Widget homeScreen = isLoggedIn ? HomePage() : HomePage();
+  Widget homeScreen = isLoggedIn ? HomePage() : LoginScreen();
 
   runApp(
     ChangeNotifierProvider(

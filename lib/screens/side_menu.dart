@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:untitled17/screens/setting.dart';
 
+import '../fav.dart';
 import '../profhome.dart';
 import 'betriner.dart';
+import 'myevent.dart';
 
 void main() {
   runApp(const MyApp());
@@ -149,7 +151,10 @@ class SideMenu extends StatelessWidget {
               );
             }),
             _buildMenuItem('Search', Icons.search, () {
-              // اضف الاجراء الذي تريده لهذا الزر
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SubscribersPage()),
+              );
             }),
             _buildMenuItem('Saved', Icons.bookmark, () {
               // اضف الاجراء الذي تريده لهذا الزر

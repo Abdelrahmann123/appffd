@@ -29,49 +29,52 @@ class _PlaygroundState extends State<Playground> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            margin: EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                            borderSide: BorderSide.none,
+                Container(
+                  margin: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Material(
+                          elevation: 4,
+                          borderRadius: BorderRadius.circular(30),
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                                borderSide: BorderSide.none,
+                              ),
+                              hintText: "Search",
+                              hintStyle: TextStyle(color: Colors.grey),
+                              prefixIcon: Icon(
+                                Icons.search,
+                                color: Colors.grey,
+                              ),
+                              fillColor: Colors.white,
+                              filled: true,
+                            ),
+                            style: TextStyle(color: Colors.black),
                           ),
-                          hintText: "Search",
-                          hintStyle: TextStyle(color: Colors.grey),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Colors.grey,
-                          ),
-                          fillColor: Colors.white,
-                          filled: true,
                         ),
-                        style: TextStyle(color: Colors.black),
                       ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.filter_alt), // أيقونة التصفية
-                      onPressed: () async {
-                        final selectedCityResult = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DistrictList(),
-                          ),
-                        );
-
-                        if (selectedCityResult != null) {
-                          setState(() {
-                            selectedCity = selectedCityResult;
-                          });
-                        }
-                      },
-                    ),
-                  ],
+                      SizedBox(width: 12),
+                      ClipOval(
+                        child: Image.asset(
+                          "images/spooooortttt.png",
+                          width: 50,
+                          height: 50,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 18,
                 ),
                 const Divider(
                   thickness: 1,
@@ -79,7 +82,6 @@ class _PlaygroundState extends State<Playground> {
                 ),
                 Category(),
                 const Divider(
-                  height: 8,
                   thickness: 0.5,
                   color: Colors.grey,
                 ),
@@ -208,12 +210,13 @@ class NewWidget extends StatelessWidget {
       child: Container(
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(15),
         ),
         child: Card(
+          color: Colors.grey[300],
           elevation: 10,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(15),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -227,7 +230,7 @@ class NewWidget extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                     borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(30),
+                      top: Radius.circular(15),
                     ),
                   ),
                 ),

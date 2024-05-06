@@ -1,8 +1,17 @@
+import 'dart:ui';
+
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:path_provider/path_provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:image/image.dart' as img;
+
+typedef FirebaseTimestamp = Timestamp;
 
 class VodafonePlayground extends StatelessWidget {
   final Map<String, dynamic>? bookingData;
@@ -12,6 +21,7 @@ class VodafonePlayground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: VodafonePlaygroundPage(bookingData: bookingData),
     );
   }
@@ -29,18 +39,19 @@ class VodafonePlaygroundPage extends StatefulWidget {
 class _VodafonePlaygroundPageState extends State<VodafonePlaygroundPage> {
   final FirestoreService _firestoreService = FirestoreService();
   DateTime? _selectedDate;
-  TimeOfDay? _selectedStartTime; // الوقت البدء
-  TimeOfDay? _selectedEndTime; // الوقت الانتهاء
+  TimeOfDay? _selectedStartTime;
+  TimeOfDay? _selectedEndTime;
   File? _image;
   TextEditingController _nameController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
+  String? _qrCodeImage;
 
   @override
   void initState() {
     super.initState();
     _selectedDate = DateTime.now();
-    _selectedStartTime = TimeOfDay(hour: 10, minute: 0); // تعيين الوقت الابتدائي للتوقيت المتاح من الساعة 10 صباحًا
-    _selectedEndTime = TimeOfDay(hour: 1, minute: 0); // تعيين الوقت النهائي للتوقيت المتاح حتى الساعة 1 بعد منتصف الليل
+    _selectedStartTime = TimeOfDay(hour: 10, minute: 0);
+    _selectedEndTime = TimeOfDay(hour: 1, minute: 0);
   }
 
   @override
@@ -174,6 +185,10 @@ class _VodafonePlaygroundPageState extends State<VodafonePlaygroundPage> {
                 label: Text('Upload Image & Save Data'),
               ),
             ),
+            SizedBox(height: 20),
+            _qrCodeImage != null
+                ? Center(child: Image.memory(base64Decode(_qrCodeImage!)))
+                : SizedBox(),
           ],
         ),
       ),
@@ -204,7 +219,7 @@ class _VodafonePlaygroundPageState extends State<VodafonePlaygroundPage> {
     if (pickedStartTime != null && pickedStartTime != _selectedStartTime) {
       setState(() {
         _selectedStartTime = pickedStartTime;
-        _selectedEndTime = TimeOfDay(hour: pickedStartTime.hour + 1, minute: pickedStartTime.minute); // تحديث الوقت الانتهاء عند تغيير الوقت البدء
+        _selectedEndTime = TimeOfDay(hour: pickedStartTime.hour + 1, minute: pickedStartTime.minute);
       });
     }
   }
@@ -219,28 +234,39 @@ class _VodafonePlaygroundPageState extends State<VodafonePlaygroundPage> {
       });
 
       if (_selectedDate != null && _selectedStartTime != null && _selectedEndTime != null) {
-        final startTimeAsString = _selectedTimeToString(_selectedStartTime!);
-        final endTimeAsString = _selectedTimeToString(_selectedEndTime!);
-        final name = _nameController.text;
-        final phoneNumber = _phoneController.text;
+        final selectedDateTime = DateTime(
+          _selectedDate!.year,
+          _selectedDate!.month,
+          _selectedDate!.day,
+          _selectedStartTime!.hour,
+          _selectedStartTime!.minute,
+        );
+        final endTimeDateTime = DateTime(
+          _selectedDate!.year,
+          _selectedDate!.month,
+          _selectedDate!.day,
+          _selectedEndTime!.hour,
+          _selectedEndTime!.minute,
+        );
 
-        // Check if the selected time is within working hours
-        final selectedStartTimeHour = _selectedStartTime!.hour;
-        final selectedEndTimeHour = _selectedEndTime!.hour;
-        if (selectedStartTimeHour < 10 || selectedEndTimeHour > 1) {
-          // If the selected time is before 10 AM or after 1 PM, display a message
+        if (selectedDateTime.hour < 10 || endTimeDateTime.hour > 23) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Working hours are from 10 AM to 1 AM.'),
+              content: Text('Selected time must be within working hours (10 AM to 1 AM).'),
             ),
           );
           return;
         }
 
+        final startTime = FirebaseTimestamp.fromDate(selectedDateTime);
+        final endTime = FirebaseTimestamp.fromDate(endTimeDateTime);
+        final name = _nameController.text;
+        final phoneNumber = _phoneController.text;
+
         final bookingData = {
           'date': _selectedDate,
-          'start_time': startTimeAsString,
-          'end_time': endTimeAsString,
+          'start_time': startTime,
+          'end_time': endTime,
           'name': name,
           'phone_number': phoneNumber,
         };
@@ -248,6 +274,9 @@ class _VodafonePlaygroundPageState extends State<VodafonePlaygroundPage> {
         final isTimeSlotBooked = await _firestoreService.checkTimeSlotAvailability(bookingData);
         if (!isTimeSlotBooked) {
           await _firestoreService.saveBookingDataWithImage(bookingData, _image!);
+
+          // Generate and display QR code
+          await _generateAndDisplayQRCode(bookingData.toString());
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -261,12 +290,43 @@ class _VodafonePlaygroundPageState extends State<VodafonePlaygroundPage> {
     }
   }
 
-  String _selectedTimeToString(TimeOfDay time) {
-    final hours = time.hour.toString().padLeft(2, '0');
-    final minutes = time.minute.toString().padLeft(2, '0');
-    return '$hours:$minutes';
+  Future<void> _generateAndDisplayQRCode(String data) async {
+    final qrValidationResult = QrValidator.validate(
+      data: data,
+      version: QrVersions.auto,
+      errorCorrectionLevel: QrErrorCorrectLevel.H, // زيادة مستوى تصحيح الخطأ
+    );
+
+    if (qrValidationResult.status == QrValidationStatus.valid) {
+      final qrCode = qrValidationResult.qrCode;
+
+      final painter = QrPainter.withQr(
+        qr: qrCode!,
+        color: const Color(0xFF000000),
+        emptyColor: const Color(0xFFFFFFFF),
+        gapless: false,
+        embeddedImageStyle: null,
+        embeddedImage: null,
+      );
+
+      // تغيير حجم الصورة إلى 100 بكسل
+      final picData = await painter.toImageData(280, format: ImageByteFormat.png); // تغيير الحجم إلى 100 بكسل
+      final bs64 = base64Encode(picData!.buffer.asUint8List());
+
+      setState(() {
+        _qrCodeImage = bs64;
+      });
+
+      final directory = (await getApplicationDocumentsDirectory()).path;
+      final imagePath = await File('$directory/qr_code.png').create();
+      await imagePath.writeAsBytes(picData.buffer.asUint8List());
+    } else {
+      print('Error generating QR code: ${qrValidationResult.error}');
+    }
   }
+
 }
+
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

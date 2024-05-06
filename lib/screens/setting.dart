@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../main.dart';
+import 'about.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -137,7 +138,10 @@ class _SettingsPageState extends State<SettingsPage> {
               style: TextStyle(color: textColor),
             ),
             onTap: () {
-              // Add your navigation logic here
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),
+              );
               print('About tapped');
             },
           ),

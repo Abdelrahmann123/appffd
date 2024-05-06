@@ -42,36 +42,151 @@ class PlaygroundDetailsPage extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 16),
-                  _buildDetail('Name:', playgroundData['name']),
-                  _buildDetail('Price:', playgroundData['price']),
-                  _buildDetail('Lockers:', playgroundData['lockers']),
-                  _buildDetail('Open Time:', playgroundData['openTime']),
-                  _buildDetail('Close Time:', playgroundData['closeTime']),
-                  SizedBox(height: 16),
-                  _buildLocationButton('Location', playgroundData['location']),
-                  SizedBox(height: 16),
-                  _buildDetail('Sport Type:', playgroundData['type']),
-                  SizedBox(height: 16),
-                  _buildDetail(
-                      'Description:', playgroundData['stadiumDetails']),
-                  SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => VodafonePlayground()),
-                      );
-                    },
-                    child: Text('Book Playground'),
+                  Expanded(
+                    child: _buildDetail('Name:', playgroundData['name']),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: _buildDetail('Sport Type:', playgroundData['type']),
+                  ),
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: _buildDetail(
+                          'Description:',
+                          playgroundData['stadiumDetails'],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child:
+                    _buildDetail('Open Time:', playgroundData['openTime']),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: _buildDetail(
+                        'Close Time:', playgroundData['closeTime']),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildDetail('Price:', playgroundData['price']),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: _buildDetail('Lockers:', playgroundData['lockers']),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: TextButton.icon(
+                          onPressed: () {
+                            _launchGoogleMaps(playgroundData['location']);
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                              Color.fromARGB(255, 41, 169, 92),
+                            ),
+                            minimumSize: MaterialStateProperty.all<Size>(
+                                Size(double.infinity, 55)),
+                            shape: MaterialStateProperty.all<OutlinedBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                            ),
+                          ),
+                          icon: Icon(Icons.location_on, color: Colors.white),
+                          label: Text(
+                            'View Location On Google Maps',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => VodafonePlayground()),
+                  );
+                },
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    Color.fromARGB(255, 41, 169, 92),
+                  ),
+                  minimumSize: MaterialStateProperty.all<Size>(
+                    Size(double.infinity, 55),
+                  ),
+                  shape: MaterialStateProperty.all<OutlinedBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.sports_soccer,
+                      color: Colors.white,
+                    ),
+                    SizedBox(width: 2),
+                    Text(
+                      'Book Playground',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
           ],
         ),
       ),
@@ -141,11 +256,18 @@ class PlaygroundDetailsPage extends StatelessWidget {
   }
 
   _launchGoogleMaps(String location) async {
-    final url = location;
+    final url = 'https://www.google.com/maps/search/?api=1&query=$location';
     if (await canLaunch(url)) {
       await launch(url);
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  void _bookPlayground(BuildContext context) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => VodafonePlayground()),
+    );
   }
 }

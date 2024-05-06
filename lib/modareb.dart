@@ -42,6 +42,7 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
         title: Text('Display Trainers'),
         actions: [],
       ),
+      backgroundColor: Colors.grey[200],
       body: Column(
         children: [
           Container(
@@ -86,6 +87,21 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
               ],
             ),
           ),
+          SizedBox(
+            height: 18,
+          ),
+          const Divider(
+            thickness: 1,
+            color: Colors.grey,
+          ),
+          Category(),
+          const Divider(
+            thickness: 0.5,
+            color: Colors.grey,
+          ),
+          SizedBox(
+            height: 18,
+          ),
           Expanded(
             child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
               stream: _firestore.collection('approved_trainers').snapshots(),
@@ -125,6 +141,7 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
     );
   }
 }
+
 class TrainerCard extends StatelessWidget {
   final Map<String, dynamic> trainer;
   final Function(String?) launchURL;
@@ -244,6 +261,81 @@ class TrainerCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class Category extends StatelessWidget {
+  const Category({Key? key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 100,
+                width: MediaQuery.of(context).size.width,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SingleChildScrollView(
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 12),
+                        categoryIcon("Paddle", "images/paddel.jpeg"),
+                        const SizedBox(width: 12),
+                        categoryIcon("Football", "images/football.jpeg"),
+                        const SizedBox(width: 12),
+                        categoryIcon("Basketball", "images/basketball.jpeg"),
+                        const SizedBox(width: 12),
+                        categoryIcon("Volleyball", "images/volleyball.jpeg"),
+                        const SizedBox(width: 12),
+                        categoryIcon("Tennis", "images/tennis.jpeg"),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget categoryIcon(String text, String image) {
+    return SizedBox(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 70,
+            height: 70,
+            child: CircleAvatar(
+              backgroundImage: AssetImage(image),
+              radius: 34,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            child: Text(
+              text,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.black87,
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

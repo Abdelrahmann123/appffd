@@ -11,7 +11,7 @@ class AddEventScreen extends StatefulWidget {
   _AddEventScreenState createState() => _AddEventScreenState();
 }
 
-class _AddEventScreenState extends State {
+class _AddEventScreenState extends State<AddEventScreen> {
   List<File> _selectedImages = [];
   String? _selectedEventType;
   String? _phoneNumber;
@@ -23,7 +23,7 @@ class _AddEventScreenState extends State {
   bool? _insurance;
   bool? _haveBike;
   double? _distance;
-  bool _isLoading = false; // حالة لعرض شاشة التحميل
+  bool _isLoading = false;
   TextEditingController _startLocationController = TextEditingController();
   TextEditingController _endLocationController = TextEditingController();
 
@@ -69,7 +69,7 @@ class _AddEventScreenState extends State {
   void _addEventToFirestore() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
-        _isLoading = true; // عرض شاشة التحميل
+        _isLoading = true;
       });
 
       CollectionReference events =
@@ -77,7 +77,8 @@ class _AddEventScreenState extends State {
 
       List<String> imageUrls = await _uploadImages(_selectedImages);
 
-      events.add({
+      events
+          .add({
         'eventName': _eventLocation,
         'phoneNumber': _phoneNumber,
         'distance': _distance,
@@ -91,27 +92,27 @@ class _AddEventScreenState extends State {
         'images': imageUrls,
         'userId': FirebaseAuth.instance.currentUser!.uid,
         'date': DateTime.now(),
-      }).then((value) {
+        'startLocationMapLink': _startLocationController.text.trim(),
+        'endLocationMapLink': _endLocationController.text.trim(),
+      })
+          .then((value) {
         print("Event added with ID: ${value.id}");
         _formKey.currentState!.reset();
         setState(() {
           _selectedImages.clear();
-          _isLoading = false; // إخفاء شاشة التحميل بعد اكتمال الرفع
+          _isLoading = false;
         });
-        // عرض رسالة تأكيدية
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text("Success"),
-              content:
-              Text("Your event has been submitted and will be reviewed."),
+              content: Text("Your event has been submitted and will be reviewed."),
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // إغلاق الرسالة التأكيدية
+                    Navigator.of(context).pop();
                     Navigator.pushReplacement(
-                      // الانتقال إلى صفحة EventCard
                       context,
                       MaterialPageRoute(builder: (context) => EventList()),
                     );
@@ -122,10 +123,11 @@ class _AddEventScreenState extends State {
             );
           },
         );
-      }).catchError((error) {
+      })
+          .catchError((error) {
         print("Failed to add event: $error");
         setState(() {
-          _isLoading = false; // إخفاء شاشة التحميل في حالة حدوث خطأ
+          _isLoading = false;
         });
       });
     }
@@ -137,7 +139,7 @@ class _AddEventScreenState extends State {
       appBar: AppBar(
         title: Text('Add Event'),
       ),
-      body: _isLoading // شاشة التحميل
+      body: _isLoading
           ? Center(
         child: CircularProgressIndicator(),
       )
@@ -220,7 +222,6 @@ class _AddEventScreenState extends State {
                   onChanged: (value) {
                     setState(() {
                       _selectedEventType = value;
-                      // Reset the fields when event type changes
                       _ageRangeFrom = null;
                       _ageRangeTo = null;
                       _fee = null;
@@ -232,7 +233,7 @@ class _AddEventScreenState extends State {
                   items: <String>[
                     'Cycling Event',
                     'Running Event',
-                    'Football Event'
+                    'Others'
                   ].map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
@@ -240,6 +241,26 @@ class _AddEventScreenState extends State {
                     );
                   }).toList(),
                 ),
+                if (_selectedEventType == 'Others') ...[
+                  SizedBox(height: 20),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Other Sport',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedEventType = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter other sport';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
                 if (_selectedEventType == 'Cycling Event' ||
                     _selectedEventType == 'Running Event') ...[
                   SizedBox(height: 20),
@@ -403,7 +424,6 @@ class _AddEventScreenState extends State {
                     if (value == null || value.isEmpty) {
                       return 'Please enter start location';
                     }
-                    // التحقق من أن الرابط يبدأ بـ https://maps.google.com
                     if (!(value.startsWith('https://maps.google.com') ||
                         value.startsWith('https://maps.app.goo.gl'))) {
                       return 'Please enter a valid Google Maps link';
@@ -422,7 +442,6 @@ class _AddEventScreenState extends State {
                     if (value == null || value.isEmpty) {
                       return 'Please enter end location';
                     }
-                    // التحقق من أن الرابط يبدأ بـ https://maps.google.com
                     if (!(value.startsWith('https://maps.google.com') ||
                         value.startsWith('https://maps.app.goo.gl'))) {
                       return 'Please enter a valid Google Maps link';
@@ -434,16 +453,13 @@ class _AddEventScreenState extends State {
                 ElevatedButton(
                   onPressed: _addEventToFirestore,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                    Color.fromARGB(255, 41, 169, 92), // لون الخلفية
+                    backgroundColor: Color.fromARGB(255, 41, 169, 92),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                      BorderRadius.circular(30), // تدوير الحواف
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                    padding: EdgeInsets.symmetric(
-                        vertical: 15), // الهامش الداخلي
+                    padding: EdgeInsets.symmetric(vertical: 15),
                   ),
-                  child: Text('Add Event'), // نص الزر
+                  child: Text('Add Event'),
                 )
               ],
             ),

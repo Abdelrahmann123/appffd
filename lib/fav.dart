@@ -1,109 +1,101 @@
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:untitled17/main.dart';
-import 'package:untitled17/profhome.dart';
-import 'package:untitled17/screens/home_page.dart';
-import 'package:untitled17/screens/side_menu.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-import 'notif.dart';
-
-class FavoritesPage extends StatelessWidget {
+class UserEventsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var themeProvider = Provider.of<ThemeProvider>(context);
-
-    Color appBarColor = themeProvider.themeMode == ThemeMode.dark
-        ? Colors.black
-        : Color.fromARGB(255, 221, 225, 231);
-    Color backgroundColor = themeProvider.themeMode == ThemeMode.dark
-        ? Colors.grey[900]!
-        : Color(0xffF5F5F5);
-    Color textColor =
-    themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
-    Color backButtonColor =
-    themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
-
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: themeProvider.themeMode == ThemeMode.dark
-            ? Colors.grey[800]
-            : Colors.grey,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
+        title: Text('My Events'),
+      ),
+      body: UserEventsList(),
+    );
+  }
+}
+
+class UserEventsList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return Center(
+        child: Text('Please login to view your events.'),
+      );
+    }
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('accepted_events')
+          .where('userId', isEqualTo: user.uid) // استعرض الفعاليات التي أضافها اليوزر الحالي فقط
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+        final events = snapshot.data!.docs;
+        return ListView.builder(
+          itemCount: events.length,
+          itemBuilder: (context, index) {
+            final event = events[index].data() as Map<String, dynamic>;
+
+            return ListTile(
+              title: Text(event['eventName']),
+              subtitle: Text(event['eventDate']),
+              trailing: IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  // عند الضغط على زر الحذف
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Delete Event"),
+                        content: Text("Are you sure you want to delete this event?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              // حذف الفعالية
+                              FirebaseFirestore.instance
+                                  .collection('accepted_events')
+                                  .doc(events[index].id)
+                                  .delete()
+                                  .then((_) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Event deleted successfully.'),
+                                  ),
+                                );
+                                Navigator.of(context).pop(); // إغلاق الحوار
+                              }).catchError((error) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Failed to delete event: $error'),
+                                  ),
+                                );
+                              });
+                            },
+                            child: Text("Delete"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            );
           },
-        ),
-        title: Text('Favorites', style: TextStyle(color: Colors.white)),
-        iconTheme: IconThemeData(color: backButtonColor),
-      ),
-      backgroundColor: themeProvider.themeMode == ThemeMode.dark
-          ? Colors.grey[900]
-          : Colors.grey[200],
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    // Add your widgets here
-                    SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Color(0xffF5F5F5),
-        color: Color.fromARGB(255, 209, 212, 217),
-        animationDuration: Duration(milliseconds: 300),
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => HomePage(),
-              ),
-            );
-          } else if (index == 2) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => NotificationsPage(),
-              ),
-            );
-          } else if (index == 3) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => ProfilePage(),
-              ),
-            );
-          }
-        },
-        index: 1, // Set the initial index to the notifications tab
-        items: [
-          Icon(
-            Icons.home,
-            color: Colors.black,
-          ),
-          Icon(
-            Icons.favorite,
-            color: Colors.black,
-          ),
-          Icon(
-            Icons.notifications,
-            color: Colors.black,
-          ),
-          Icon(
-            Icons.account_circle_rounded,
-            color: Colors.black,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
