@@ -18,6 +18,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late User user;
   late Map<String, dynamic> userData;
+  bool isLoading = true;
   var currentIndex = 3;
 
   @override
@@ -35,10 +36,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
     setState(() {
       userData = userDoc.data() as Map<String, dynamic>;
+      isLoading = false;
     });
   }
 
-  // Add a function to handle the edit button press
   void _editProfile() {
     Navigator.push(
       context,
@@ -46,7 +47,6 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context) => EditProfilePage(userData: userData),
       ),
     ).then((value) {
-      // Refresh the data after returning from the EditProfilePage
       if (value != null && value) {
         fetchUserData();
       }
@@ -59,7 +59,6 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
-        // Add the edit icon to the app bar
         actions: [
           IconButton(
             icon: Icon(Icons.edit),
@@ -67,69 +66,119 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            GestureDetector(
-              onTap: () {
-                // Add your camera functionality here
-              },
-              child: CircleAvatar(
-                radius: 50,
-                backgroundImage: userData['profileImageUrl'] != null
-                    ? FileImage(File(userData['profileImageUrl']))
-                    : null,
-                child: Container(
-                  color: Colors.transparent,
-                  margin: EdgeInsets.only(top: 65, left: 70),
-                  child: IconButton(
-                    icon: Icon(Icons.camera_alt, color: Colors.black38),
-                    onPressed: () async {
-                      final picker = ImagePicker();
-                      final pickedImage =
-                      await picker.getImage(source: ImageSource.gallery);
+      body: isLoading
+          ? Center(child: CircularProgressIndicator()) // عرض التحميل
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ListView(
+                children: [
+                  Center(
+                    child: GestureDetector(
+                      onTap: () async {
+                        final picker = ImagePicker();
+                        final pickedImage =
+                            await picker.getImage(source: ImageSource.gallery);
 
-                      if (pickedImage != null) {
-                        // تم اختيار صورة من المعرض بنجاح
-                        // يمكنك تحديث الصورة في الحالة الخاصة بك أو إجراء أي معالجة أخرى
-                        setState(() {
-                          userData['profileImageUrl'] = pickedImage.path;
-                        });
-                      }
-                    },
+                        if (pickedImage != null) {
+                          Reference ref = FirebaseStorage.instance
+                              .ref()
+                              .child('profile_images/${user.uid}');
+                          TaskSnapshot uploadTask =
+                              await ref.putFile(File(pickedImage.path));
+                          String imageUrl =
+                              await uploadTask.ref.getDownloadURL();
+
+                          // Update the profileImageUrl in Firestore
+                          await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(user.uid)
+                              .update({'profileImageUrl': imageUrl});
+
+                          setState(() {
+                            userData['profileImageUrl'] = imageUrl;
+                          });
+                        }
+                      },
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 60,
+                            backgroundImage: userData['profileImageUrl'] != null
+                                ? NetworkImage(userData['profileImageUrl'])
+                                : null,
+                            child: Container(
+                              color: Colors.transparent,
+                              margin: EdgeInsets.only(top: 85, left: 85),
+                              child: IconButton(
+                                icon: Icon(Icons.camera_alt,
+                                    color: Colors.black38),
+                                onPressed: () async {
+                                  final picker = ImagePicker();
+                                  final pickedImage = await picker.getImage(
+                                      source: ImageSource.gallery);
+
+                                  if (pickedImage != null) {
+                                    Reference ref = FirebaseStorage.instance
+                                        .ref()
+                                        .child('profile_images/${user.uid}');
+                                    TaskSnapshot uploadTask = await ref
+                                        .putFile(File(pickedImage.path));
+                                    String imageUrl =
+                                        await uploadTask.ref.getDownloadURL();
+
+                                    // Update the profileImageUrl in Firestore
+                                    await FirebaseFirestore.instance
+                                        .collection('users')
+                                        .doc(user.uid)
+                                        .update({'profileImageUrl': imageUrl});
+
+                                    setState(() {
+                                      userData['profileImageUrl'] = imageUrl;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                          if (userData['profileImageUrl'] ==
+                              null) // عرض Loading Indicator إذا لم تكن الصورة قد تم تحميلها بعد
+                            Positioned.fill(
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  SizedBox(height: 20),
+                  Card(
+                    child: ListTile(
+                      title: Text('Name'),
+                      subtitle: Text(userData['name'] ?? ''),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      title: Text('Phone Number'),
+                      subtitle: Text(userData['phone'] ?? ''),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      title: Text('Birthdate'),
+                      subtitle: Text(userData['birthdate'] ?? ''),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      title: Text('City'),
+                      subtitle: Text(userData['city'] ?? ''),
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 20),
-            Card(
-              child: ListTile(
-                title: Text('Name'),
-                subtitle: Text(userData['name'] ?? ''),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                title: Text('Phone Number'),
-                subtitle: Text(userData['phone'] ?? ''),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                title: Text('Birthdate'),
-                subtitle: Text(userData['birthdate'] ?? ''),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                title: Text('City'),
-                subtitle: Text(userData['city'] ?? ''),
-              ),
-            ),
-          ],
-        ),
-      ),
       bottomNavigationBar: Container(
         margin: EdgeInsets.all(displayWidth * .05),
         height: displayWidth * .155,
@@ -191,7 +240,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         decoration: BoxDecoration(
                             color: index == currentIndex
                                 ? Color.fromARGB(255, 134, 140, 143)
-                                .withOpacity(.2)
+                                    .withOpacity(.2)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(50)),
                       ),
@@ -242,24 +291,24 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               index == 1
                                   ? ScaleTransition(
-                                scale: CurvedAnimation(
-                                    parent: AlwaysStoppedAnimation(1),
-                                    curve: Curves.fastLinearToSlowEaseIn),
-                                child: Icon(
-                                  listOfIcons[index],
-                                  size: displayWidth * .076,
-                                  color: index == currentIndex
-                                      ? Colors.black87
-                                      : Colors.black26,
-                                ),
-                              )
+                                      scale: CurvedAnimation(
+                                          parent: AlwaysStoppedAnimation(1),
+                                          curve: Curves.fastLinearToSlowEaseIn),
+                                      child: Icon(
+                                        listOfIcons[index],
+                                        size: displayWidth * .076,
+                                        color: index == currentIndex
+                                            ? Colors.black87
+                                            : Colors.black26,
+                                      ),
+                                    )
                                   : Icon(
-                                listOfIcons[index],
-                                size: displayWidth * .076,
-                                color: index == currentIndex
-                                    ? Colors.black87
-                                    : Colors.black26,
-                              ),
+                                      listOfIcons[index],
+                                      size: displayWidth * .076,
+                                      color: index == currentIndex
+                                          ? Colors.black87
+                                          : Colors.black26,
+                                    ),
                             ],
                           )
                         ],
@@ -370,7 +419,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 if (pickedDate != null && pickedDate != DateTime.now()) {
                   setState(() {
                     _birthdateController.text =
-                    '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
+                        '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
                   });
                 }
               },
@@ -383,7 +432,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _saveChanges,
-              child: Text('Save Changes'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 41, 169, 92), // لون الزر
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 15),
+              ),
+              child: Text(
+                'Save Changes',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),

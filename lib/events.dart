@@ -1,8 +1,8 @@
-
 import 'package:circular_menu/circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:untitled17/screens/history.dart';
 import 'package:untitled17/screens/userevent.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
@@ -45,11 +45,19 @@ class _EventCardState extends State<EventCard> {
         );
       },
       child: Container(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.all(16),
         margin: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(10),
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,39 +80,48 @@ class _EventCardState extends State<EventCard> {
                   },
                 ),
               ),
-            SizedBox(height: 10),
+            SizedBox(height: 12),
             Text(
               'Event Type: ${widget.data['eventType']}',
-              style: TextStyle(fontSize: 18),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 8),
             Text(
-              'distance: ${widget.data['distance']}',
-              style: TextStyle(fontSize: 18),
+              'Distance: ${widget.data['distance']}',
+              style: TextStyle(fontSize: 16),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 8),
             Text(
-              'fee: ${widget.data['fee']}',
-              style: TextStyle(fontSize: 18),
+              'Fee: ${widget.data['fee']}',
+              style: TextStyle(fontSize: 16),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 8),
             Text(
-              'insurance: ${widget.data['insurance']}',
-              style: TextStyle(fontSize: 18),
+              'Insurance: ${widget.data['insurance']}',
+              style: TextStyle(fontSize: 16),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 12),
             Row(
               children: [
                 ElevatedButton(
                   onPressed: isSubscribed
                       ? null
                       : () => _subscribeToEvent(context, widget.data),
-                  child: Text(isSubscribed ? 'Subscribed' : 'Subscribe'),
+                  child: Text(
+                    isSubscribed ? 'Subscribed' : 'Subscribe',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 41, 169, 92),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
                 ),
-                SizedBox(width: 8),
+                SizedBox(width: 12),
                 Text(
                   'Subscribers: $subscribersCount',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 16),
                 ),
               ],
             ),
@@ -178,7 +195,12 @@ class _EventCardState extends State<EventCard> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 41, 169, 92),
+                ),
+              ),
             ),
             TextButton(
               onPressed: () async {
@@ -225,16 +247,16 @@ class _EventCardState extends State<EventCard> {
 
                 // Check if the user is already subscribed to this event
                 final QuerySnapshot existingSubscription =
-                await FirebaseFirestore.instance
-                    .collection('event_subscribers_${eventData['eventId']}')
-                    .where('userId', isEqualTo: userId)
-                    .get();
+                    await FirebaseFirestore.instance
+                        .collection('event_subscribers_${eventData['eventId']}')
+                        .where('userId', isEqualTo: userId)
+                        .get();
 
                 if (existingSubscription.docs.isNotEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content:
-                      Text('You are already subscribed to this event!'),
+                          Text('You are already subscribed to this event!'),
                     ),
                   );
                   Navigator.of(context).pop(); // Close dialog
@@ -250,13 +272,13 @@ class _EventCardState extends State<EventCard> {
 
                   // Use event ID and user ID as a unique identifier for the subscription
                   final CollectionReference eventSubscribersCollection =
-                  FirebaseFirestore.instance.collection(
-                      'event_subscribers_${eventData['eventId']}');
+                      FirebaseFirestore.instance.collection(
+                          'event_subscribers_${eventData['eventId']}');
                   eventSubscribersCollection.add(subscriberData).then((_) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                           content:
-                          Text('Subscribed to the event successfully!')),
+                              Text('Subscribed to the event successfully!')),
                     );
                     Navigator.of(context).pop(); // Close dialog
 
@@ -266,7 +288,7 @@ class _EventCardState extends State<EventCard> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                           content:
-                          Text('Failed to subscribe to the event: $error')),
+                              Text('Failed to subscribe to the event: $error')),
                     );
                   });
 
@@ -278,7 +300,12 @@ class _EventCardState extends State<EventCard> {
                   );
                 }
               },
-              child: Text('Subscribe'),
+              child: Text(
+                'Subscribe',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 41, 169, 92),
+                ),
+              ),
             ),
           ],
         );
@@ -340,8 +367,8 @@ class EventDetailsScreen extends StatelessWidget {
                               onTap: () {
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (_) {
-                                      return DetailScreen(imageUrl: imageUrl);
-                                    }));
+                                  return DetailScreen(imageUrl: imageUrl);
+                                }));
                               },
                               child: Hero(
                                 tag: imageUrl,
@@ -389,11 +416,12 @@ class EventDetailsScreen extends StatelessWidget {
                       _launchMaps('${event['address']}');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Background color
+                      backgroundColor:
+                          Color.fromARGB(255, 41, 169, 92), // Background color
 
                       shape: RoundedRectangleBorder(
                         borderRadius:
-                        BorderRadius.circular(15), // Rounded corners
+                            BorderRadius.circular(15), // Rounded corners
                       ),
                       padding: EdgeInsets.symmetric(
                           vertical: 16, horizontal: 24), // Button padding
@@ -401,9 +429,10 @@ class EventDetailsScreen extends StatelessWidget {
                     child: Text(
                       'View Location on Google Maps',
                       style: TextStyle(
-                        fontSize: 16, // Text size
-                        fontWeight: FontWeight.bold, // Bold text
-                      ),
+                          fontSize: 16, // Text size
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white // Bold text
+                          ),
                     ),
                   ),
                 ],
@@ -482,6 +511,9 @@ class EventScreen extends StatelessWidget {
       body: LiquidPullToRefresh(
         // هنا نقوم بتحديث البيانات عند سحب الشاشة لأسفل
         onRefresh: () async {
+          EventList();
+          final Map<String, dynamic> data;
+
           // قم بإعادة تحميل البيانات من Firebase هنا
           // يمكنك استدعاء الدوال اللازمة لإعادة تحميل البيانات
         },
@@ -533,6 +565,11 @@ class EventScreen extends StatelessWidget {
                       icon: Icons.history,
                       color: Colors.brown,
                       onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HistoryPage()),
+                        );
                         // صفحة الايفينتات القديمه
                       },
                     )
@@ -553,7 +590,7 @@ class EventList extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream:
-      FirebaseFirestore.instance.collection('accepted_events').snapshots(),
+          FirebaseFirestore.instance.collection('accepted_events').snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());

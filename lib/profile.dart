@@ -37,6 +37,40 @@ class _DetailsPageState extends State<DetailsPage> {
     _nameController = TextEditingController();
     _cityController = TextEditingController();
     _phoneController = TextEditingController();
+
+    // Fetch user data when the page opens
+    _fetchUserData();
+  }
+
+  // Function to fetch user data from Firestore
+  Future<void> _fetchUserData() async {
+    try {
+      String userId = _auth.currentUser!.uid;
+      DocumentSnapshot<Map<String, dynamic>> userData =
+          await _firestore.doc('users/$userId').get();
+
+      if (userData.exists) {
+        Map<String, dynamic> data = userData.data()!;
+        _nameController.text = data['name'];
+        _cityController.text = data['city'];
+        _gender = data['gender'];
+        _phoneController.text = data['phone'];
+
+        // Set the birthdate fields
+        List<String> birthdate = data['birthdate'].split('/');
+        _dayController.text = birthdate[0];
+        _monthController.text = birthdate[1];
+        _yearController.text = birthdate[2];
+        _imageUrl = data['profileImageUrl'];
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+    } finally {
+      // Hide Loading
+      setState(() {
+        _loading = false;
+      });
+    }
   }
 
   Future getImage() async {
@@ -86,7 +120,7 @@ class _DetailsPageState extends State<DetailsPage> {
         'city': _cityController.text,
         'gender': _gender,
         'birthdate':
-        '${_dayController.text}/${_monthController.text}/${_yearController.text}',
+            '${_dayController.text}/${_monthController.text}/${_yearController.text}',
         'phone': _phoneController.text,
         'profileImageUrl': _imageUrl,
       });
@@ -141,13 +175,13 @@ class _DetailsPageState extends State<DetailsPage> {
               child: CircleAvatar(
                 radius: 60,
                 backgroundColor:
-                Colors.grey[200], // لإضافة لون خلفية لل CircleAvatar
+                    Colors.grey[200], // لإضافة لون خلفية لل CircleAvatar
                 backgroundImage: _image != null ? FileImage(_image!) : null,
                 child: _image == null
                     ? Icon(
-                  Icons.camera_alt,
-                  size: 40,
-                )
+                        Icons.camera_alt,
+                        size: 40,
+                      )
                     : null,
               ),
             ),
@@ -155,11 +189,23 @@ class _DetailsPageState extends State<DetailsPage> {
             TextFormField(
               controller: _nameController,
               decoration: InputDecoration(labelText: 'Name'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your name';
+                }
+                return null;
+              },
             ),
             SizedBox(height: 10),
             TextFormField(
               controller: _cityController,
               decoration: InputDecoration(labelText: 'City'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your city';
+                }
+                return null;
+              },
             ),
             SizedBox(height: 10),
             DropdownButtonFormField<String>(
@@ -172,12 +218,18 @@ class _DetailsPageState extends State<DetailsPage> {
               items: ['Male', 'Female']
                   .map<DropdownMenuItem<String>>(
                     (String value) => DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                ),
-              )
+                      value: value,
+                      child: Text(value),
+                    ),
+                  )
                   .toList(),
               decoration: InputDecoration(labelText: 'Gender'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please select your gender';
+                }
+                return null;
+              },
             ),
             SizedBox(height: 10),
             Row(
@@ -190,6 +242,12 @@ class _DetailsPageState extends State<DetailsPage> {
                         controller: _dayController,
                         decoration: InputDecoration(labelText: 'Day'),
                         keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter the day of birth';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                   ),
@@ -203,6 +261,12 @@ class _DetailsPageState extends State<DetailsPage> {
                         controller: _monthController,
                         decoration: InputDecoration(labelText: 'Month'),
                         keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter the month of birth';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                   ),
@@ -216,6 +280,12 @@ class _DetailsPageState extends State<DetailsPage> {
                         controller: _yearController,
                         decoration: InputDecoration(labelText: 'Year'),
                         keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter the year of birth';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                   ),
@@ -227,14 +297,38 @@ class _DetailsPageState extends State<DetailsPage> {
               controller: _phoneController,
               decoration: InputDecoration(labelText: 'Phone Number'),
               keyboardType: TextInputType.phone,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your phone number';
+                }
+                return null;
+              },
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                saveProfile();
+                if (_image == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Please select a profile picture'),
+                  ));
+                } else {
+                  if (_nameController.text.isEmpty ||
+                      _cityController.text.isEmpty ||
+                      _gender.isEmpty ||
+                      _dayController.text.isEmpty ||
+                      _monthController.text.isEmpty ||
+                      _yearController.text.isEmpty ||
+                      _phoneController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('Please fill in all the fields'),
+                    ));
+                  } else {
+                    saveProfile();
+                  }
+                }
               },
               child:
-              _loading ? CircularProgressIndicator() : Text('Save Profile'),
+                  _loading ? CircularProgressIndicator() : Text('Save Profile'),
             ),
           ],
         ),

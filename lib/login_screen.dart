@@ -19,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // Input form controllers
   FocusNode emailFocusNode = FocusNode();
   TextEditingController emailController = TextEditingController();
+  bool _obscurePassword = true;
 
   FocusNode passwordFocusNode = FocusNode();
   TextEditingController passwordController = TextEditingController();
@@ -63,8 +64,8 @@ class _LoginScreenState extends State<LoginScreen> {
         errorMessage = '';
       });
 
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
@@ -93,9 +94,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> loginWithGoogle() async {
     try {
       final GoogleSignInAccount? googleSignInAccount =
-      await GoogleSignIn().signIn();
+          await GoogleSignIn().signIn();
       final GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount!.authentication;
+          await googleSignInAccount!.authentication;
 
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleSignInAuthentication.accessToken,
@@ -103,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       UserCredential userCredential =
-      await FirebaseAuth.instance.signInWithCredential(credential);
+          await FirebaseAuth.instance.signInWithCredential(credential);
 
       print("Logged in with Google: ${userCredential.user?.displayName}");
 
@@ -130,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       UserCredential userCredential =
-      await FirebaseAuth.instance.signInWithCredential(credentialFirebase);
+          await FirebaseAuth.instance.signInWithCredential(credentialFirebase);
 
       print("Logged in with Apple: ${userCredential.user?.displayName}");
 
@@ -221,8 +222,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         hintText: "Email",
+                        hintStyle: TextStyle(color: Colors.black), // تعيين لون النص للـ hintText
+
                       ),
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      autocorrect: false,
+                      autofillHints: [AutofillHints.email],
                       onChanged: (value) {
                         numLook?.change(value.length.toDouble());
                       },
@@ -243,12 +253,34 @@ class _LoginScreenState extends State<LoginScreen> {
                         TextField(
                           focusNode: passwordFocusNode,
                           controller: passwordController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: "Password",
+                            hintStyle: TextStyle(color: Colors.black), // تعيين لون النص للـ hintText
+
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ),
-                          obscureText: true,
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          obscureText: _obscurePassword,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 14,
+                          ),
+                          keyboardType: TextInputType.visiblePassword,
+                          textInputAction: TextInputAction.done,
+                          autocorrect: false,
+                          autofillHints: [AutofillHints.password],
                           onChanged: (value) {},
                         ),
                       ],
@@ -294,12 +326,12 @@ class _LoginScreenState extends State<LoginScreen> {
               },
               child: isLoading
                   ? CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              )
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
                   : const Text(
-                "Login",
-                style: TextStyle(color: Colors.white),
-              ),
+                      "Login",
+                      style: TextStyle(color: Colors.white),
+                    ),
             ),
             const SizedBox(height: 10),
             SizedBox(

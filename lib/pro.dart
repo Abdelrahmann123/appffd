@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled17/swap.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'main.dart';
 
 class DisplayProductsPage extends StatefulWidget {
@@ -36,7 +36,7 @@ class _DisplayProductsPageState extends State<DisplayProductsPage> {
           Expanded(
             child: StreamBuilder(
               stream:
-              FirebaseFirestore.instance.collection('products').snapshots(),
+                  FirebaseFirestore.instance.collection('products').snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (!snapshot.hasData) {
                   return Center(
@@ -56,7 +56,7 @@ class _DisplayProductsPageState extends State<DisplayProductsPage> {
                   itemCount: filteredProducts.length,
                   itemBuilder: (context, index) {
                     var product =
-                    filteredProducts[index].data() as Map<String, dynamic>;
+                        filteredProducts[index].data() as Map<String, dynamic>;
                     List<dynamic>? imageUrls = product['imageUrls'];
                     return ProductCard(product: product, imageUrls: imageUrls);
                   },
@@ -73,6 +73,8 @@ class _DisplayProductsPageState extends State<DisplayProductsPage> {
             MaterialPageRoute(builder: (context) => AddProductPage()),
           );
         },
+        backgroundColor: Color.fromARGB(255, 41, 169, 92),
+        foregroundColor: Colors.white,
         child: Icon(Icons.add),
       ),
     );
@@ -87,7 +89,7 @@ class SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     var themeProvider = Provider.of<ThemeProvider>(context);
     Color textColor =
-    themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
+        themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
 
     return Container(
       padding: EdgeInsets.all(12.0),
@@ -190,14 +192,20 @@ class ProductCard extends StatelessWidget {
                           onPressed: () {
                             launchWhatsApp(context, number: product['phone']);
                           },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                              Color.fromARGB(255, 41, 169, 92),
+                            ),
+                            foregroundColor:
+                                MaterialStateProperty.all<Color>(Colors.white),
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Image.asset(
-                                'images/whatsapp.png',
-                                width: MediaQuery.of(context).size.width * 0.06,
-                                height:
-                                MediaQuery.of(context).size.width * 0.06,
+                              FaIcon(
+                                FontAwesomeIcons.whatsapp,
+                                size: 32,
+                                color: Colors.white,
                               ),
                               SizedBox(width: 5),
                               Text('WhatsApp'),
@@ -209,6 +217,13 @@ class ProductCard extends StatelessWidget {
                           onPressed: () {
                             launchPhoneCall(context, number: product['phone']);
                           },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                              Color.fromARGB(255, 41, 169, 92),
+                            ),
+                            foregroundColor:
+                                MaterialStateProperty.all<Color>(Colors.white),
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -225,13 +240,22 @@ class ProductCard extends StatelessWidget {
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: Text('Cancel'),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                     ],
                   );
                 },
               );
             },
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(
+                Color.fromARGB(255, 41, 169, 92),
+              ),
+              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -264,9 +288,9 @@ class ProductCard extends StatelessWidget {
     await canLaunch(phoneCallUrl)
         ? launch(phoneCallUrl)
         : ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Could not make a phone call'),
-      ),
-    );
+            SnackBar(
+              content: Text('Could not make a phone call'),
+            ),
+          );
   }
 }

@@ -11,6 +11,7 @@ import '../modareb.dart';
 import '../notif.dart';
 import '../pro.dart';
 import 'history.dart';
+import 'myevent.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key});
@@ -69,7 +70,7 @@ class _HomePageState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => HistoryPage()),
+                                builder: (context) => SubscribersPage()),
                           );
                         } else if (index == 2) {
                           Navigator.push(

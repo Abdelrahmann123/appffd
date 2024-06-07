@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:untitled17/screens/setting.dart';
+import 'package:untitled17/screens/userevent.dart';
 
 import '../fav.dart';
 import '../profhome.dart';
 import 'betriner.dart';
-import 'myevent.dart';
 
 void main() {
   runApp(const MyApp());
@@ -122,7 +122,8 @@ class SideMenu extends StatelessWidget {
                     // If data exists, navigate to TrainerHomePage
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => TrainerHomePage()),
+                      MaterialPageRoute(
+                          builder: (context) => TrainerHomePage()),
                     );
                   } else {
                     // If data doesn't exist, navigate to TrainerResPage

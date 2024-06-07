@@ -256,7 +256,7 @@ class PlaygroundDetailsPage extends StatelessWidget {
   }
 
   _launchGoogleMaps(String location) async {
-    final url = 'https://www.google.com/maps/search/?api=1&query=$location';
+    final url = location; // Using the full URL directly
     if (await canLaunch(url)) {
       await launch(url);
     } else {

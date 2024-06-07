@@ -170,7 +170,7 @@ class _AddProductPageState extends State<AddProductPage> {
               child: Column(
                 children: [
                   Container(
-                    height: 150,
+                    height: 100,
                     child: PageView.builder(
                       itemCount: _pickedImages.length,
                       itemBuilder: (context, index) {
@@ -183,9 +183,33 @@ class _AddProductPageState extends State<AddProductPage> {
                   ),
                   ElevatedButton(
                     onPressed: _pickImage,
-                    child: Text('Pick Image'),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                        Color.fromARGB(255, 41, 169, 92),
+                      ), // Set the background color to green
+                      minimumSize: MaterialStateProperty.all<Size>(
+                          Size(double.infinity, 50)), // Set the minimum size
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.image,
+                          color: Colors.white, // Set the icon color to white
+                        ), // // Add the image icon here
+                        SizedBox(
+                            width: 8), // Add space between the icon and text
+                        Text(
+                          'Pick Image',
+                          style: TextStyle(
+                              fontSize: 17,
+                              color:
+                                  Colors.white), // Set the text color to white
+                        ), // Button text
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 12),
+                  SizedBox(height: 30),
                   TextField(
                     controller: _nameController,
                     decoration: InputDecoration(
@@ -196,7 +220,7 @@ class _AddProductPageState extends State<AddProductPage> {
                       errorText: _nameError ? _nameErrorMessage : null,
                     ),
                   ),
-                  SizedBox(height: 12),
+                  SizedBox(height: 17),
                   TextField(
                     controller: _descriptionController,
                     decoration: InputDecoration(
@@ -205,10 +229,10 @@ class _AddProductPageState extends State<AddProductPage> {
                         borderRadius: BorderRadius.circular(20.0),
                       ),
                       errorText:
-                      _descriptionError ? _descriptionErrorMessage : null,
+                          _descriptionError ? _descriptionErrorMessage : null,
                     ),
                   ),
-                  SizedBox(height: 12),
+                  SizedBox(height: 17),
                   TextField(
                     controller: _addressController,
                     decoration: InputDecoration(
@@ -219,7 +243,7 @@ class _AddProductPageState extends State<AddProductPage> {
                       errorText: _addressError ? _addressErrorMessage : null,
                     ),
                   ),
-                  SizedBox(height: 12),
+                  SizedBox(height: 17),
                   TextField(
                     controller: _phoneController,
                     keyboardType: TextInputType.number,
@@ -236,10 +260,28 @@ class _AddProductPageState extends State<AddProductPage> {
                       errorText: _phoneError ? _phoneErrorMessage : null,
                     ),
                   ),
-                  SizedBox(height: 12),
+                  SizedBox(height: 50),
                   ElevatedButton(
                     onPressed: _uploadData,
-                    child: Text('Add tool'),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                        Color.fromARGB(255, 41, 169, 92),
+                      ), // Set the background color to green
+                      minimumSize: MaterialStateProperty.all<Size>(
+                          Size(double.infinity, 50)), // Set the minimum size
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Add Tool',
+                          style: TextStyle(
+                              fontSize: 17,
+                              color:
+                                  Colors.white), // Set the text color to white
+                        ), // Button text
+                      ],
+                    ),
                   ),
                 ],
               ),

@@ -126,13 +126,6 @@ class _PlaygroundState extends State<Playground> {
                 SizedBox(
                   height: 18,
                 ),
-                Text(
-                  'Selected City: $selectedCity',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
               ],
             ),
           ),

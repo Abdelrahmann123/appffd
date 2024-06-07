@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled17/forgetpass.dart';
+import 'package:untitled17/screens/help.dart';
 
 import '../main.dart';
 import 'about.dart';
@@ -24,9 +26,9 @@ class _SettingsPageState extends State<SettingsPage> {
         ? Colors.grey[900]!
         : Color(0xffF5F5F5);
     Color textColor =
-    themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
+        themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
     Color backButtonColor =
-    themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
+        themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -123,6 +125,10 @@ class _SettingsPageState extends State<SettingsPage> {
               style: TextStyle(color: textColor),
             ),
             onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ForgotPassScreen()),
+              );
               // Add your navigation logic here
               print('Change Password tapped');
             },
@@ -140,7 +146,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => HomePage()),
+                MaterialPageRoute(builder: (context) => AboutPage()),
               );
               print('About tapped');
             },
@@ -156,6 +162,10 @@ class _SettingsPageState extends State<SettingsPage> {
               style: TextStyle(color: textColor),
             ),
             onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HelpScreen()),
+              );
               // Add your navigation logic here
               print('Help tapped');
             },

@@ -43,67 +43,67 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
         actions: [],
       ),
       backgroundColor: Colors.grey[200],
-      body: Column(
-        children: [
-          Container(
-            margin: EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Material(
-                    elevation: 4,
-                    borderRadius: BorderRadius.circular(30),
-                    child: TextFormField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                          borderSide: BorderSide.none,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Material(
+                      elevation: 4,
+                      borderRadius: BorderRadius.circular(30),
+                      child: TextFormField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: BorderSide.none,
+                          ),
+                          hintText: "Search",
+                          hintStyle: TextStyle(color: Colors.grey),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Colors.grey,
+                          ),
+                          fillColor: Colors.white,
+                          filled: true,
                         ),
-                        hintText: "Search",
-                        hintStyle: TextStyle(color: Colors.grey),
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: Colors.grey,
-                        ),
-                        fillColor: Colors.white,
-                        filled: true,
+                        style: TextStyle(color: Colors.black),
                       ),
-                      style: TextStyle(color: Colors.black),
                     ),
                   ),
-                ),
-                SizedBox(width: 12),
-                ClipOval(
-                  child: Image.asset(
-                    "images/spooooortttt.png",
-                    width: 50,
-                    height: 50,
+                  SizedBox(width: 12),
+                  ClipOval(
+                    child: Image.asset(
+                      "images/spooooortttt.png",
+                      width: 50,
+                      height: 50,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          SizedBox(
-            height: 18,
-          ),
-          const Divider(
-            thickness: 1,
-            color: Colors.grey,
-          ),
-          Category(),
-          const Divider(
-            thickness: 0.5,
-            color: Colors.grey,
-          ),
-          SizedBox(
-            height: 18,
-          ),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            SizedBox(
+              height: 18,
+            ),
+            const Divider(
+              thickness: 1,
+              color: Colors.grey,
+            ),
+            Category(),
+            const Divider(
+              thickness: 0.5,
+              color: Colors.grey,
+            ),
+            SizedBox(
+              height: 18,
+            ),
+            StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
               stream: _firestore.collection('approved_trainers').snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
@@ -122,6 +122,8 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
                 }).toList();
 
                 return ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
                   itemCount: filteredTrainers.length,
                   itemBuilder: (context, index) {
                     var trainer =
@@ -135,8 +137,8 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
                 );
               },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -219,43 +221,75 @@ class TrainerCard extends StatelessWidget {
               ),
               SizedBox(height: 10),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  if (trainer['linkedin'] != null)
-                    IconButton(
-                      icon: Icon(FontAwesomeIcons.linkedin),
-                      onPressed: () {
+
+                  if (trainer['linkedin'] != null) ...[
+                    Spacer(), // Spacer لإضافة مسافة بين الصور
+
+                    GestureDetector(
+                      onTap: () {
                         launchURL(trainer['linkedin']);
                       },
+                      child: Image.asset(
+                        'images/in-removebg-preview.png',
+                        width: 32,
+                        height: 32,
+                      ),
                     ),
-                  if (trainer['youtube'] != null)
-                    IconButton(
-                      icon: Icon(FontAwesomeIcons.youtube),
-                      onPressed: () {
+                    Spacer(), // Spacer لإضافة مسافة بين الصور
+                  ],
+                  if (trainer['youtube'] != null) ...[
+                    GestureDetector(
+                      onTap: () {
                         launchURL(trainer['youtube']);
                       },
+                      child: Image.asset(
+                        'images/Youtube-removebg-preview.png',
+                        width: 32,
+                        height: 32,
+                      ),
                     ),
-                  if (trainer['instagram'] != null)
-                    IconButton(
-                      icon: Icon(FontAwesomeIcons.instagram),
-                      onPressed: () {
+                    Spacer(), // Spacer لإضافة مسافة بين الصور
+                  ],
+                  if (trainer['instagram'] != null) ...[
+                    GestureDetector(
+                      onTap: () {
                         launchURL(trainer['instagram']);
                       },
+                      child: Image.asset(
+                        'images/instagram.png',
+                        width: 32,
+                        height: 32,
+                      ),
                     ),
-                  if (trainer['twitter'] != null)
-                    IconButton(
-                      icon: Icon(FontAwesomeIcons.twitter),
-                      onPressed: () {
+                    Spacer(), // Spacer لإضافة مسافة بين الصور
+                  ],
+                  if (trainer['twitter'] != null) ...[
+                    GestureDetector(
+                      onTap: () {
                         launchURL(trainer['twitter']);
                       },
+                      child: Image.asset(
+                        'images/X-removebg-preview.png',
+                        width: 32,
+                        height: 32,
+                      ),
                     ),
-                  if (trainer['facebook'] != null)
-                    IconButton(
-                      icon: Icon(FontAwesomeIcons.facebook),
-                      onPressed: () {
+                    Spacer(), // Spacer لإضافة مسافة بين الصور
+                  ],
+                  if (trainer['facebook'] != null) ...[
+                    GestureDetector(
+                      onTap: () {
                         launchURL(trainer['facebook']);
                       },
+                      child: Image.asset(
+                        'images/facebook.png',
+                        width: 32,
+                        height: 32,
+                      ),
                     ),
+                    Spacer(), // Spacer لإضافة مسافة بين الصور
+                  ],
                 ],
               ),
             ],
@@ -381,133 +415,87 @@ class TrainerDetailsScreen extends StatelessWidget {
                 ),
               ),
             SizedBox(height: 20),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border:
-                Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Text(
-                      'Name: ',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '${trainer['name']}',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border:
-                Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Text(
-                      'Experience: ',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '${trainer['experience']} years',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border:
-                Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Text(
-                      'Age: ',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '${trainer['age']}',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border:
-                Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Text(
-                      'Sport: ',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '${trainer['sport']}',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
+            _buildInfoItem('Name', '${trainer['name']}'),
+            SizedBox(height: 8),
+            _buildInfoItem('Experience', '${trainer['experience']} years'),
+            SizedBox(height: 8),
+            _buildInfoItem('Age', '${trainer['age']}'),
+            SizedBox(height: 8),
+            _buildInfoItem('Sport', '${trainer['sport']}'),
+            SizedBox(height: 15),
             Container(
               width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-              ),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return Buy();
-                        },
+                padding: const EdgeInsets.all(8),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return Buy();
+                          },
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 41, 169, 92),
+                      padding:
+                      EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
                       ),
-                    );
-                  },
-                  child: Text('Subscribe'),
+                    ),
+                    child: Text(
+                      'Subscribe',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoItem(String title, String value) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 class SubscribersPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Get the current user
     final User? currentUser = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
@@ -13,7 +12,6 @@ class SubscribersPage extends StatelessWidget {
         title: Text('Event Subscribers'),
       ),
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        // استخدم QuerySnapshot هنا
         stream: FirebaseFirestore.instance
             .collection('event_subscribers_null')
             .snapshots(),
@@ -28,38 +26,70 @@ class SubscribersPage extends StatelessWidget {
               child: Text('Error: ${snapshot.error}'),
             );
           } else {
-            // تحقق من وجود البيانات
             if (snapshot.data!.docs.isEmpty) {
               return Center(
                 child: Text('No subscribers found.'),
               );
             }
 
-            // قم بتكوين قائمة من الوثائق
             return ListView(
               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                 Map<String, dynamic> subscriberData =
                 document.data()! as Map<String, dynamic>;
-                // تحقق إذا كان المستخدم الحالي هو صاحب الحدث
+
                 if (currentUser != null &&
                     subscriberData['userId'] == currentUser.uid) {
-                  // عرض المشتركين فقط إذا كان المستخدم الحالي هو الصاحب
-                  return ListTile(
-                    title: Text('Name: ${subscriberData['name']}'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Phone: ${subscriberData['phone']}'),
-                        Text('Gender: ${subscriberData['gender']}'),
-                        Text('Age: ${subscriberData['age']}'),
-                        Text('User ID: ${subscriberData['userId']}'),
-                      ],
+                  return Card(
+                    elevation: 3,
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: ListTile(
+                      title: Text(
+                        'Name: ${subscriberData['name']}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 8),
+                          _buildInfoRow(
+                              Icons.phone, '${subscriberData['phone']}'),
+                          _buildInfoRow(
+                              Icons.person, '${subscriberData['gender']}'),
+                          _buildInfoRow(Icons.cake, '${subscriberData['age']}'),
+                          _buildInfoRow(Icons.account_circle,
+                              '${subscriberData['userId']}'),
+                          SizedBox(height: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditUserProfileScreen(
+                                      userData: subscriberData),
+                                ),
+                              );
+                            },
+                            child: Text('Edit'),
+                          ),
+                          SizedBox(height: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              _unsubscribeFromEvent(
+                                  currentUser.uid, document.id);
+                              Navigator.pop(context);
+                            },
+                            child: Text('Unsubscribe'),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 } else {
-                  // عرض رسالة تشير إلى أن المستخدم غير مخول لعرض المشتركين
                   return Center(
-                    child: Text('You are not authorized to view this event\'s subscribers.'),
+
                   );
                 }
               }).toList(),
@@ -68,5 +98,124 @@ class SubscribersPage extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 18),
+          SizedBox(width: 8),
+          Text(text),
+        ],
+      ),
+    );
+  }
+
+  void _unsubscribeFromEvent(String userId, String eventId) {
+    FirebaseFirestore.instance
+        .collection('event_subscribers_null')
+        .doc(eventId)
+        .collection('subscribers')
+        .where('userId', isEqualTo: userId)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        doc.reference.delete();
+      });
+
+      // Delete the document from the main collection after removing from subscribers collection
+      FirebaseFirestore.instance
+          .collection('event_subscribers_null')
+          .doc(eventId)
+          .delete()
+          .then((value) => print("Unsubscribed successfully"))
+          .catchError((error) => print("Failed to unsubscribe: $error"));
+    }).catchError((error) => print("Failed to unsubscribe: $error"));
+  }
+}
+
+class EditUserProfileScreen extends StatefulWidget {
+  final Map<String, dynamic> userData;
+
+  EditUserProfileScreen({required this.userData});
+
+  @override
+  _EditUserProfileScreenState createState() => _EditUserProfileScreenState();
+}
+
+class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _phoneController = TextEditingController();
+  TextEditingController _genderController = TextEditingController();
+  TextEditingController _ageController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.text = widget.userData['name'];
+    _phoneController.text = widget.userData['phone'];
+    _genderController.text = widget.userData['gender'];
+    _ageController.text = widget.userData['age'];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Edit User'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: 'Name'),
+            ),
+            TextFormField(
+              controller: _phoneController,
+              decoration: InputDecoration(labelText: 'Phone'),
+            ),
+            TextFormField(
+              controller: _genderController,
+              decoration: InputDecoration(labelText: 'Gender'),
+            ),
+            TextFormField(
+              controller: _ageController,
+              decoration: InputDecoration(labelText: 'Age'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                _saveUserData();
+              },
+              child: Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _saveUserData() {
+    Map<String, dynamic> updatedUserData = {
+      'name': _nameController.text,
+      'phone': _phoneController.text,
+      'gender': _genderController.text,
+      'age': _ageController.text,
+    };
+
+    // Update user data in Firebase
+    FirebaseFirestore.instance
+        .collection('event_subscribers_null')
+        .doc(widget.userData['eventId'])
+        .collection('subscribers')
+        .doc(widget.userData['userId'])
+        .update(updatedUserData)
+        .then((value) => Navigator.pop(context))
+        .catchError((error) => print("Failed to update user data: $error"));
   }
 }
