@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:untitled17/profhome.dart';
 import 'package:untitled17/screens/history.dart';
 import 'package:untitled17/screens/home_page.dart';
 import 'package:untitled17/screens/side_menu.dart';
-
 
 import 'events.dart';
 import 'main.dart';
@@ -30,22 +30,22 @@ class _NotificationsPageState extends State<NotificationsPage> {
         ? Colors.grey[900]!
         : Color(0xffF5F5F5);
     Color textColor =
-    themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
+        themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
     Color backButtonColor =
-    themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
+        themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: themeProvider.themeMode == ThemeMode.dark
             ? Colors.grey[800]
-            : Colors.grey,
+            : Color.fromARGB(255, 41, 169, 92),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        title: Text('Notifications', style: TextStyle(color: Colors.white)),
+        title: Text('notifications'.tr),
         iconTheme: IconThemeData(color: backButtonColor),
       ),
       backgroundColor: themeProvider.themeMode == ThemeMode.dark
@@ -62,9 +62,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   children: <Widget>[
                     SizedBox(height: 20),
                     StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance.collection('accepted_events').snapshots(),
+                      stream: FirebaseFirestore.instance
+                          .collection('accepted_events')
+                          .snapshots(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return Center(child: CircularProgressIndicator());
                         }
                         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -105,7 +108,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'هناك فعالية جديدة باسم: $eventName',
+                                      'New events have been added with a name: $eventName',
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -114,7 +117,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                     ),
                                     SizedBox(height: 8),
                                     Text(
-                                      'نوع الفعالية: $eventType',
+                                      'event type: $eventType',
                                       style: TextStyle(
                                         fontSize: 16,
                                         color: Colors.grey[600],
@@ -122,7 +125,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                     ),
                                     SizedBox(height: 8),
                                     Text(
-                                      'قم بالذهاب إلى صفحة الفعاليات الآن لتتفقد كل جديد',
+                                      'Visit_the_events_page_now_to_see_what_is_new'
+                                          .tr,
                                       style: TextStyle(
                                         fontSize: 14,
                                         color: Colors.grey[600],
@@ -202,7 +206,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         decoration: BoxDecoration(
                             color: index == currentIndex
                                 ? Color.fromARGB(255, 134, 140, 143)
-                                .withOpacity(.2)
+                                    .withOpacity(.2)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(50)),
                       ),
@@ -253,24 +257,24 @@ class _NotificationsPageState extends State<NotificationsPage> {
                               ),
                               index == 1
                                   ? ScaleTransition(
-                                scale: CurvedAnimation(
-                                    parent: AlwaysStoppedAnimation(1),
-                                    curve: Curves.fastLinearToSlowEaseIn),
-                                child: Icon(
-                                  listOfIcons[index],
-                                  size: displayWidth * .076,
-                                  color: index == currentIndex
-                                      ? Colors.black87
-                                      : Colors.black26,
-                                ),
-                              )
+                                      scale: CurvedAnimation(
+                                          parent: AlwaysStoppedAnimation(1),
+                                          curve: Curves.fastLinearToSlowEaseIn),
+                                      child: Icon(
+                                        listOfIcons[index],
+                                        size: displayWidth * .076,
+                                        color: index == currentIndex
+                                            ? Colors.black87
+                                            : Colors.black26,
+                                      ),
+                                    )
                                   : Icon(
-                                listOfIcons[index],
-                                size: displayWidth * .076,
-                                color: index == currentIndex
-                                    ? Colors.black87
-                                    : Colors.black26,
-                              ),
+                                      listOfIcons[index],
+                                      size: displayWidth * .076,
+                                      color: index == currentIndex
+                                          ? Colors.black87
+                                          : Colors.black26,
+                                    ),
                             ],
                           )
                         ],
@@ -287,10 +291,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   List<String> listOfString = [
-    'Home',
-    'History',
-    'Notification',
-    'Profile',
+    'home'.tr,
+    'history'.tr,
+    'notification'.tr,
+    'profile'.tr,
   ];
 
   List<IconData> listOfIcons = [
