@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:untitled17/constants.dart';
 
 class AboutPage extends StatefulWidget {
   @override
@@ -9,11 +11,11 @@ class AboutPage extends StatefulWidget {
 
 class _AboutPageState extends State<AboutPage> {
   List<String> descriptions = [
-    'Experience a unique and comprehensive sports journey with our app, which allows you to organize your sports events, book sports fields, exchange sports equipment, and communicate directly with personal trainers online, all with ease',
-    'Book training sessions with coaches effortlessly and communicate directly with them to arrange session details and seek sports advice',
-    'Enjoy a unique sports experience with Sportify, the app that makes booking and participating in sports events smoother than ever.',
-    'Experience a unique sports swapping journey you! Utilize the exchange section in the app to upgrade your sports gear effortlessly.',
-    'We are proud to present our application developed by a distinguished team of graduates from Al-Shorouk Academy, Team 13, who graduated in 2024. Get to know this creative team and explore their innovations through our amazing app!',
+    'Experienceaunique'.tr,
+    'Booktraining'.tr,
+    'Enjoyunique'.tr,
+    'Experience a'.tr,
+    'Weareproud'.tr
   ];
 
   List<String> lottieFiles = [
@@ -117,7 +119,7 @@ class _AboutPageState extends State<AboutPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('About'),
+        title: Text('about'.tr),
         backgroundColor: Color.fromARGB(255, 41, 169, 92),
         elevation: 0,
         leading: IconButton(
@@ -144,7 +146,8 @@ class _AboutPageState extends State<AboutPage> {
                         ),
                         SizedBox(height: 20),
                         Text(
-                          'Just a moment,\nwe\'re preparing the best\npresentation capabilities for you...',
+                          'Just a moment,\nwe\'re preparing the best\npresentation capabilities for you...'
+                              .tr,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 18,

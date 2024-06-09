@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitled17/languages/translations.dart';
 import 'package:untitled17/login_screen.dart';
 import 'package:untitled17/screens/home_page.dart';
 
@@ -18,7 +20,7 @@ Future<void> main() async {
   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
   ThemeMode savedThemeMode = ThemeMode.values[prefs.getInt('themeMode') ?? 0];
 
-  Widget homeScreen = isLoggedIn ? HomePage() : LoginScreen();
+  Widget homeScreen = isLoggedIn ? HomePage() : HomePage();
 
   runApp(
     ChangeNotifierProvider(
@@ -37,7 +39,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
-        return MaterialApp(
+        return GetMaterialApp(
+          translations: Translation(), // تأكد من توفير ترجمة
+          locale: Locale('en'), // اللغة الافتراضية
+          fallbackLocale: Locale('ar'), // اللغة الاحتياطية
           debugShowCheckedModeBanner: false,
           themeMode: themeProvider.themeMode,
           theme: ThemeData.light(),
@@ -50,8 +55,7 @@ class MyApp extends StatelessWidget {
 }
 
 class DefaultFirebaseOptions {
-  static FirebaseOptions get currentPlatform => FirebaseOptions(
-    apiKey: "AIzaSyCdPXhfGyTxUHiPQDc3_ToZ5vcKF3miNtc",
+  static FirebaseOptions get currentPlatform => FirebaseOptions(    apiKey: "AIzaSyCdPXhfGyTxUHiPQDc3_ToZ5vcKF3miNtc",
     authDomain: "wwew-fa4b6.firebaseapp.com",
     projectId: "wwew-fa4b6",
     storageBucket: "wwew-fa4b6.appspot.com",

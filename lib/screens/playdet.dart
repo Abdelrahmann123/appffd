@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:untitled17/screens/vod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../constants.dart';
 
 class PlaygroundDetailsPage extends StatelessWidget {
   final Map<String, dynamic> playgroundData;
@@ -24,7 +27,8 @@ class PlaygroundDetailsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Playground Details'),
+        backgroundColor: Color.fromARGB(255, 41, 169, 92),
+        title: Text('playground_details'.tr),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -46,11 +50,12 @@ class PlaygroundDetailsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: _buildDetail('Name:', playgroundData['name']),
+                    child: _buildDetail('name:'.tr, playgroundData['name']),
                   ),
                   SizedBox(width: 16),
                   Expanded(
-                    child: _buildDetail('Sport Type:', playgroundData['type']),
+                    child:
+                        _buildDetail('sport_type'.tr, playgroundData['type']),
                   ),
                 ],
               ),
@@ -65,7 +70,7 @@ class PlaygroundDetailsPage extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _buildDetail(
-                          'Description:',
+                          'description'.tr,
                           playgroundData['stadiumDetails'],
                         ),
                       ),
@@ -81,13 +86,13 @@ class PlaygroundDetailsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child:
-                    _buildDetail('Open Time:', playgroundData['openTime']),
+                    child: _buildDetail(
+                        'open_time'.tr, playgroundData['openTime']),
                   ),
                   SizedBox(width: 16),
                   Expanded(
                     child: _buildDetail(
-                        'Close Time:', playgroundData['closeTime']),
+                        'close_time'.tr, playgroundData['closeTime']),
                   ),
                 ],
               ),
@@ -98,11 +103,12 @@ class PlaygroundDetailsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: _buildDetail('Price:', playgroundData['price']),
+                    child: _buildDetail('price'.tr, playgroundData['price']),
                   ),
                   SizedBox(width: 16),
                   Expanded(
-                    child: _buildDetail('Lockers:', playgroundData['lockers']),
+                    child:
+                        _buildDetail('lockers'.tr, playgroundData['lockers']),
                   ),
                 ],
               ),
@@ -134,7 +140,7 @@ class PlaygroundDetailsPage extends StatelessWidget {
                           ),
                           icon: Icon(Icons.location_on, color: Colors.white),
                           label: Text(
-                            'View Location On Google Maps',
+                            'view_location_on_google_maps'.tr,
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.white,
@@ -179,7 +185,7 @@ class PlaygroundDetailsPage extends StatelessWidget {
                     ),
                     SizedBox(width: 2),
                     Text(
-                      'Book Playground',
+                      'book_playground'.tr,
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ],

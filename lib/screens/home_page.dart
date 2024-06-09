@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:untitled17/playground.dart';
 import 'package:untitled17/profhome.dart';
@@ -63,7 +64,7 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) => InkWell(
                   onTap: () {
                     setState(
-                          () {
+                      () {
                         currentIndex = index;
                         // Navigate to the corresponding page based on the index
                         if (index == 1) {
@@ -104,12 +105,12 @@ class _HomePageState extends State<HomePage> {
                           duration: Duration(seconds: 1),
                           curve: Curves.fastLinearToSlowEaseIn,
                           height:
-                          index == currentIndex ? displayWidth * .12 : 0,
+                              index == currentIndex ? displayWidth * .12 : 0,
                           width: index == currentIndex ? displayWidth * .32 : 0,
                           decoration: BoxDecoration(
                             color: index == currentIndex
                                 ? Color.fromARGB(255, 134, 140, 143)
-                                .withOpacity(.2)
+                                    .withOpacity(.2)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(50),
                           ),
@@ -161,21 +162,21 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 index == currentIndex
                                     ? ScaleTransition(
-                                  scale: CurvedAnimation(
-                                    parent: AlwaysStoppedAnimation(1),
-                                    curve: Curves.fastLinearToSlowEaseIn,
-                                  ),
-                                  child: Icon(
-                                    listOfIcons[index],
-                                    size: displayWidth * .076,
-                                    color: Colors.black87,
-                                  ),
-                                )
+                                        scale: CurvedAnimation(
+                                          parent: AlwaysStoppedAnimation(1),
+                                          curve: Curves.fastLinearToSlowEaseIn,
+                                        ),
+                                        child: Icon(
+                                          listOfIcons[index],
+                                          size: displayWidth * .076,
+                                          color: Colors.black87,
+                                        ),
+                                      )
                                     : Icon(
-                                  listOfIcons[index],
-                                  size: displayWidth * .076,
-                                  color: Colors.black26,
-                                ),
+                                        listOfIcons[index],
+                                        size: displayWidth * .076,
+                                        color: Colors.black26,
+                                      ),
                               ],
                             ),
                           ],
@@ -233,7 +234,7 @@ class _HomePageState extends State<HomePage> {
                             iconTheme: IconThemeData.fallback(),
                             title: Container(
                               margin:
-                              const EdgeInsets.symmetric(horizontal: 20),
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: <Widget>[
@@ -270,7 +271,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 Center(
                                   child: Text(
-                                    "What are you looking for?",
+                                    'interest'.tr,
                                     style: TextStyle(
                                       fontSize: 25,
                                     ),
@@ -281,7 +282,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     GestureDetector(
                                       onTap: () {
@@ -295,8 +296,8 @@ class _HomePageState extends State<HomePage> {
                                       },
                                       child: NewPadding(
                                         image:
-                                        'images/Fitness_couple_running_vector_image_on_VectorStock-removebg-preview.png',
-                                        text: 'Events',
+                                            'images/Fitness_couple_running_vector_image_on_VectorStock-removebg-preview.png',
+                                        text: 'events'.tr,
                                       ),
                                     ),
                                     GestureDetector(
@@ -310,9 +311,8 @@ class _HomePageState extends State<HomePage> {
                                         );
                                       },
                                       child: NewPadding(
-                                        image:
-                                        'images/3a523d32-8218-4bb6-b3bb-a02b56bd7e58-removebg-preview.png',
-                                        text: 'Playground',
+                                        image: 'images/Playgroundhome.png',
+                                        text: 'playground'.tr,
                                       ),
                                     ),
                                   ],
@@ -322,7 +322,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     GestureDetector(
                                       onTap: () {
@@ -336,8 +336,8 @@ class _HomePageState extends State<HomePage> {
                                       },
                                       child: NewPadding(
                                         image:
-                                        'images/WhatsApp_Image_2023-12-13_at_10.33.02_PM-removebg-preview.png',
-                                        text: 'Trainers',
+                                            'images/WhatsApp_Image_2023-12-13_at_10.33.02_PM-removebg-preview.png',
+                                        text: 'trainers'.tr,
                                       ),
                                     ),
                                     GestureDetector(
@@ -352,8 +352,8 @@ class _HomePageState extends State<HomePage> {
                                       },
                                       child: NewPadding(
                                         image:
-                                        'images/ea819bf4-ebaf-49d0-9acd-60d8f0ee9aad-removebg-preview.png',
-                                        text: 'Swap',
+                                            'images/ea819bf4-ebaf-49d0-9acd-60d8f0ee9aad-removebg-preview.png',
+                                        text: 'swapTools'.tr,
                                       ),
                                     ),
                                   ],

@@ -1,6 +1,8 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled17/constants.dart';
 import 'package:untitled17/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,7 +18,8 @@ class _HelpScreenState extends State<HelpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Help!'),
+        title: Text('help!'.tr),
+        backgroundColor: Color.fromARGB(255, 41, 169, 92),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -55,7 +58,7 @@ class _HelpScreenState extends State<HelpScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'App Information',
+              'app_information'.tr,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -289,14 +292,14 @@ class _HelpScreenState extends State<HelpScreen> {
                     );
                   },
                   icon: Icon(Icons.help),
-                  label: Text('Help'),
+                  label: Text('help'.tr),
                 ),
                 ElevatedButton.icon(
                   onPressed: () {
                     _showUpdateMessage();
                   },
                   icon: Icon(Icons.update),
-                  label: Text('Update'),
+                  label: Text('update'.tr),
                 ),
               ],
             ),
@@ -309,7 +312,7 @@ class _HelpScreenState extends State<HelpScreen> {
   void _showUpdateMessage() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('You already have the latest update'),
+        content: Text('you_already_have_the_latest_update'.tr),
         duration: Duration(seconds: 3),
         behavior: SnackBarBehavior.floating,
       ),

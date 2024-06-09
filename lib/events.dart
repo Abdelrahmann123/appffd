@@ -2,6 +2,7 @@ import 'package:circular_menu/circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
 import 'package:untitled17/screens/history.dart';
 import 'package:untitled17/screens/userevent.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -160,19 +161,19 @@ class _EventCardState extends State<EventCard> {
       builder: (BuildContext context) {
         String name = '';
         String age = '';
-        String gender = 'Male'; // Initial value for gender
+        String gender = 'male'.tr; // Initial value for gender
         String phone = '';
 
-        List<String> genderOptions = ['Male', 'Female'];
+        List<String> genderOptions = ['male'.tr, 'female'.tr];
 
         return AlertDialog(
-          title: Text('Subscribe to Event'),
+          title: Text('subscribe_to_event'.tr),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                _buildTextField('Name', (value) => name = value),
-                _buildTextField('Age', (value) => age = value),
+                _buildTextField('name'.tr, (value) => name = value),
+                _buildTextField('age'.tr, (value) => age = value),
                 DropdownButton(
                   hint: Text('Select Gender'),
                   value: gender,
@@ -186,7 +187,7 @@ class _EventCardState extends State<EventCard> {
                     );
                   }).toList(),
                 ),
-                _buildTextField('Phone', (value) => phone = value),
+                _buildTextField('phone_number'.tr, (value) => phone = value),
               ],
             ),
           ),
@@ -196,7 +197,7 @@ class _EventCardState extends State<EventCard> {
                 Navigator.of(context).pop();
               },
               child: Text(
-                'Cancel',
+                'cancel'.tr,
                 style: TextStyle(
                   color: Color.fromARGB(255, 41, 169, 92),
                 ),
@@ -263,11 +264,11 @@ class _EventCardState extends State<EventCard> {
                 } else {
                   // Save subscriber data to a new collection for event subscriptions
                   Map<String, dynamic> subscriberData = {
-                    'name': name,
-                    'age': age,
-                    'gender': gender, // Use the selected gender value here
-                    'phone': phone,
-                    'userId': userId,
+                    'name'.tr: name,
+                    'age'.tr: age,
+                    'gender'.tr: gender, // Use the selected gender value here
+                    'phone'.tr: phone,
+                    'userId'.tr: userId,
                   };
 
                   // Use event ID and user ID as a unique identifier for the subscription
@@ -276,9 +277,7 @@ class _EventCardState extends State<EventCard> {
                           'event_subscribers_${eventData['eventId']}');
                   eventSubscribersCollection.add(subscriberData).then((_) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content:
-                              Text('Subscribed to the event successfully!')),
+                      SnackBar(content: Text('successfully')),
                     );
                     Navigator.of(context).pop(); // Close dialog
 
@@ -301,7 +300,7 @@ class _EventCardState extends State<EventCard> {
                 }
               },
               child: Text(
-                'Subscribe',
+                'subscribe'.tr,
                 style: TextStyle(
                   color: Color.fromARGB(255, 41, 169, 92),
                 ),
@@ -343,7 +342,8 @@ class EventDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Event Details'),
+        backgroundColor: Color.fromARGB(255, 41, 169, 92),
+        title: Text('event_details'.tr),
       ),
       body: CustomScrollView(
         slivers: [
@@ -388,26 +388,28 @@ class EventDetailsScreen extends StatelessWidget {
                     ),
                   SizedBox(height: 20),
                   _buildInfoCard(
-                      title: 'Event Name', value: '${event['eventName']}'),
-                  _buildInfoCard(title: 'Status', value: '${event['status']}'),
+                      title: 'event_name'.tr, value: '${event['eventName']}'),
                   _buildInfoCard(
-                      title: 'Age Range',
+                      title: 'status'.tr, value: '${event['status']}'),
+                  _buildInfoCard(
+                      title: 'age_range'.tr,
                       value: '${event['ageRangeFrom']}-${event['ageRangeTo']}'),
                   _buildInfoCard(
-                      title: 'Description', value: '${event['description']}'),
+                      title: 'description'.tr,
+                      value: '${event['description']}'),
                   if (event['distance'] != null)
                     _buildInfoCard(
-                        title: 'Distance', value: '${event['distance']}'),
+                        title: 'distance'.tr, value: '${event['distance']}'),
                   if (event['date'] != null)
-                    _buildInfoCard(title: 'Date', value: '${event['date']}'),
+                    _buildInfoCard(title: 'date'.tr, value: '${event['date']}'),
                   _buildInfoCard(
-                      title: 'Event Type', value: '${event['eventType']}'),
-                  _buildInfoCard(title: 'Fee', value: '${event['fee']}'),
+                      title: 'event_type'.tr, value: '${event['eventType']}'),
+                  _buildInfoCard(title: 'fee'.tr, value: '${event['fee']}'),
                   if (event['haveBike'] != null)
                     _buildInfoCard(
-                        title: 'Have Bike', value: '${event['haveBike']}'),
+                        title: 'have_bike'.tr, value: '${event['haveBike']}'),
                   _buildInfoCard(
-                      title: 'Insurance', value: '${event['insurance']}'),
+                      title: 'insurance'.tr, value: '${event['insurance']}'),
                   SizedBox(height: 10),
                   // Add button to open Google Maps
                   ElevatedButton(
@@ -427,7 +429,7 @@ class EventDetailsScreen extends StatelessWidget {
                           vertical: 16, horizontal: 24), // Button padding
                     ),
                     child: Text(
-                      'View Location on Google Maps',
+                      'view_location_on_google_maps'.tr,
                       style: TextStyle(
                           fontSize: 16, // Text size
                           fontWeight: FontWeight.bold,
@@ -506,7 +508,8 @@ class EventScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Event'),
+        backgroundColor: Color.fromARGB(255, 41, 169, 92),
+        title: Text('events'.tr),
       ),
       body: LiquidPullToRefresh(
         // هنا نقوم بتحديث البيانات عند سحب الشاشة لأسفل
@@ -537,11 +540,11 @@ class EventScreen extends StatelessWidget {
               Positioned(
                 child: CircularMenu(
                   alignment: Alignment.bottomRight,
-                  toggleButtonColor: Colors.blue,
+                  toggleButtonColor: Color.fromARGB(255, 41, 169, 92),
                   items: [
                     CircularMenuItem(
                       icon: Icons.add_outlined,
-                      color: Colors.green,
+                      color: Colors.blue,
                       onTap: () {
                         Navigator.push(
                           context,
@@ -633,7 +636,7 @@ class SearchBar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30.0),
                     borderSide: BorderSide.none,
                   ),
-                  hintText: "Search",
+                  hintText: 'search'.tr,
                   hintStyle: TextStyle(color: Colors.grey),
                   prefixIcon: Icon(
                     Icons.search,

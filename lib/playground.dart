@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
 import 'package:untitled17/screens/playdet.dart';
+
+import 'constants.dart';
 
 class Playground extends StatefulWidget {
   const Playground({Key? key});
@@ -16,16 +19,15 @@ class _PlaygroundState extends State<Playground> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.grey,
+        backgroundColor: Color.fromARGB(255, 41, 169, 92),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        title: Text('Playground'),
+        title: Text('playground'.tr),
       ),
-      backgroundColor: Colors.grey[200],
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -49,7 +51,7 @@ class _PlaygroundState extends State<Playground> {
                                 borderRadius: BorderRadius.circular(30.0),
                                 borderSide: BorderSide.none,
                               ),
-                              hintText: "Search",
+                              hintText: 'search'.tr,
                               hintStyle: TextStyle(color: Colors.grey),
                               prefixIcon: Icon(
                                 Icons.search,
@@ -76,10 +78,6 @@ class _PlaygroundState extends State<Playground> {
                 SizedBox(
                   height: 18,
                 ),
-                const Divider(
-                  thickness: 1,
-                  color: Colors.grey,
-                ),
                 Category(),
                 const Divider(
                   thickness: 0.5,
@@ -92,9 +90,9 @@ class _PlaygroundState extends State<Playground> {
                   future: (selectedCity.isEmpty)
                       ? FirebaseFirestore.instance.collection('stadiums').get()
                       : FirebaseFirestore.instance
-                      .collection('stadiums')
-                      .where('city', isEqualTo: selectedCity)
-                      .get(),
+                          .collection('stadiums')
+                          .where('city', isEqualTo: selectedCity)
+                          .get(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
@@ -115,7 +113,7 @@ class _PlaygroundState extends State<Playground> {
                               ),
                               PlaygroundCard(
                                   data: playground.data()
-                                  as Map<String, dynamic>),
+                                      as Map<String, dynamic>),
                             ],
                           );
                         }).toList(),
@@ -187,10 +185,10 @@ class NewWidget extends StatelessWidget {
 
   const NewWidget(
       {Key? key,
-        required this.imge,
-        required this.data,
-        required this.name,
-        required this.price})
+      required this.imge,
+      required this.data,
+      required this.name,
+      required this.price})
       : super(key: key);
 
   @override
@@ -283,15 +281,15 @@ class Category extends StatelessWidget {
                     child: Row(
                       children: [
                         const SizedBox(width: 12),
-                        categoryIcon("Paddle", "images/paddel.jpeg"),
+                        categoryIcon('paddel'.tr, "images/paddel.jpeg"),
                         const SizedBox(width: 12),
-                        categoryIcon("Football", "images/football.jpeg"),
+                        categoryIcon('football'.tr, "images/football.jpeg"),
                         const SizedBox(width: 12),
-                        categoryIcon("Basketball", "images/basketball.jpeg"),
+                        categoryIcon('basketball'.tr, "images/basketball.jpeg"),
                         const SizedBox(width: 12),
-                        categoryIcon("Volleyball", "images/volleyball.jpeg"),
+                        categoryIcon('volleyball'.tr, "images/volleyball.jpeg"),
                         const SizedBox(width: 12),
-                        categoryIcon("Tennis", "images/tennis.jpeg"),
+                        categoryIcon('tennis', "images/tennis.jpeg"),
                       ],
                     ),
                   ),

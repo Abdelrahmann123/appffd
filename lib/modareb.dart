@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
 import 'package:untitled17/payments.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -32,17 +33,16 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.grey,
+        backgroundColor: Color.fromARGB(255, 41, 169, 92),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        title: Text('Display Trainers'),
+        title: Text('Display_Trainers'.tr),
         actions: [],
       ),
-      backgroundColor: Colors.grey[200],
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -64,7 +64,7 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
                             borderRadius: BorderRadius.circular(30.0),
                             borderSide: BorderSide.none,
                           ),
-                          hintText: "Search",
+                          hintText: "search".tr,
                           hintStyle: TextStyle(color: Colors.grey),
                           prefixIcon: Icon(
                             Icons.search,
@@ -90,10 +90,6 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
             ),
             SizedBox(
               height: 18,
-            ),
-            const Divider(
-              thickness: 1,
-              color: Colors.grey,
             ),
             Category(),
             const Divider(
@@ -127,7 +123,7 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
                   itemCount: filteredTrainers.length,
                   itemBuilder: (context, index) {
                     var trainer =
-                    filteredTrainers[index].data()! as Map<String, dynamic>;
+                        filteredTrainers[index].data()! as Map<String, dynamic>;
                     return TrainerCard(
                       trainer: trainer,
                       // تمرير دالة فتح الروابط كوسيطة
@@ -195,26 +191,26 @@ class TrainerCard extends StatelessWidget {
                 ),
               SizedBox(height: 10),
               Text(
-                'Name: ${trainer['name']}',
+                'name: ${trainer['name']}'.tr,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
-                'Experience: ${trainer['experience']} years',
+                'experience: ${trainer['experience']} years'.tr,
                 style: TextStyle(
                   fontSize: 18,
                 ),
               ),
               Text(
-                'Age: ${trainer['age']}',
+                'age: ${trainer['age']}'.tr,
                 style: TextStyle(
                   fontSize: 18,
                 ),
               ),
               Text(
-                'Sport: ${trainer['sport']}',
+                'sport: ${trainer['sport']}'.tr,
                 style: TextStyle(
                   fontSize: 18,
                 ),
@@ -222,7 +218,6 @@ class TrainerCard extends StatelessWidget {
               SizedBox(height: 10),
               Row(
                 children: [
-
                   if (trainer['linkedin'] != null) ...[
                     Spacer(), // Spacer لإضافة مسافة بين الصور
 
@@ -319,15 +314,15 @@ class Category extends StatelessWidget {
                     child: Row(
                       children: [
                         const SizedBox(width: 12),
-                        categoryIcon("Paddle", "images/paddel.jpeg"),
+                        categoryIcon('paddel'.tr, "images/paddel.jpeg"),
                         const SizedBox(width: 12),
-                        categoryIcon("Football", "images/football.jpeg"),
+                        categoryIcon('football'.tr, "images/football.jpeg"),
                         const SizedBox(width: 12),
-                        categoryIcon("Basketball", "images/basketball.jpeg"),
+                        categoryIcon('basketball'.tr, "images/basketball.jpeg"),
                         const SizedBox(width: 12),
-                        categoryIcon("Volleyball", "images/volleyball.jpeg"),
+                        categoryIcon('volleyball'.tr, "images/volleyball.jpeg"),
                         const SizedBox(width: 12),
-                        categoryIcon("Tennis", "images/tennis.jpeg"),
+                        categoryIcon('tennis'.tr, "images/tennis.jpeg"),
                       ],
                     ),
                   ),
@@ -384,7 +379,8 @@ class TrainerDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Trainer Details'),
+        backgroundColor: Color.fromARGB(255, 41, 169, 92),
+        title: Text('Trainer_Details'.tr),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -415,13 +411,14 @@ class TrainerDetailsScreen extends StatelessWidget {
                 ),
               ),
             SizedBox(height: 20),
-            _buildInfoItem('Name', '${trainer['name']}'),
+            _buildInfoItem('name:'.tr, '${trainer['name']}'.tr),
             SizedBox(height: 8),
-            _buildInfoItem('Experience', '${trainer['experience']} years'),
+            _buildInfoItem(
+                'experience:'.tr, '${trainer['experience']} years'),
             SizedBox(height: 8),
-            _buildInfoItem('Age', '${trainer['age']}'),
+            _buildInfoItem('age:'.tr, '${trainer['age']}'.tr),
             SizedBox(height: 8),
-            _buildInfoItem('Sport', '${trainer['sport']}'),
+            _buildInfoItem('sport:', '${trainer['sport']}'.tr),
             SizedBox(height: 15),
             Container(
               width: double.infinity,
@@ -442,13 +439,13 @@ class TrainerDetailsScreen extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 41, 169, 92),
                       padding:
-                      EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                          EdgeInsets.symmetric(horizontal: 40, vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
                     child: Text(
-                      'Subscribe',
+                      'subscribe'.tr,
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),

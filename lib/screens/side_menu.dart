@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
 import 'package:untitled17/screens/setting.dart';
 import 'package:untitled17/screens/userevent.dart';
 
@@ -107,7 +108,9 @@ class SideMenu extends StatelessWidget {
                 color: Color.fromARGB(255, 55, 55, 55),
               ),
             ),
-            _buildMenuItem('Be a Trainer', Icons.group_add, () async {
+            SizedBox(height: 100),
+
+            _buildMenuItem('beATrainer'.tr, Icons.group_add, () async {
               User? user = FirebaseAuth.instance.currentUser;
 
               if (user != null) {
@@ -139,39 +142,38 @@ class SideMenu extends StatelessWidget {
               }
             }),
 
-            _buildMenuItem('Setting', Icons.settings, () {
+            _buildMenuItem('settings'.tr, Icons.settings, () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => SettingsPage()),
               );
             }),
-            _buildMenuItem('Profile', Icons.person, () {
+            _buildMenuItem('profile'.tr, Icons.person, () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => ProfilePage()),
               );
             }),
-            _buildMenuItem('Search', Icons.search, () {
+            _buildMenuItem('search'.tr, Icons.search, () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => SubscribersPage()),
               );
             }),
-            _buildMenuItem('Saved', Icons.bookmark, () {
+            _buildMenuItem('favorites'.tr, Icons.favorite, () {
               // اضف الاجراء الذي تريده لهذا الزر
             }),
-            _buildMenuItem('Favorites', Icons.favorite, () {
-              // اضف الاجراء الذي تريده لهذا الزر
-            }),
+            SizedBox(height: 125),
             const Divider(
               color: Colors.white,
             ),
-            _buildMenuItem('Log out', Icons.logout, () {
+            SizedBox(height: 2),
+            _buildMenuItem('logOut'.tr, Icons.logout, () {
               Navigator.popUntil(context, ModalRoute.withName('/'));
             }),
 
             // هنا يمكنك إضافة زر جديد
-            _buildMenuItem('Trainer', Icons.accessibility_sharp, () {
+            _buildMenuItem('trainer'.tr, Icons.accessibility_sharp, () {
               // طلب كلمة المرور
               _requestPassword(context, () {
                 // عند التحقق من صحة كلمة المرور، قم بفتح الصفحة

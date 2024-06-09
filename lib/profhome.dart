@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 import 'package:untitled17/screens/history.dart';
 import 'package:untitled17/screens/home_page.dart';
 import 'package:untitled17/screens/side_menu.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'constants.dart';
 import 'notif.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -58,7 +60,8 @@ class _ProfilePageState extends State<ProfilePage> {
     double displayWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        backgroundColor: Color.fromARGB(255, 41, 169, 92),
+        title: Text('profile'.tr),
         actions: [
           IconButton(
             icon: Icon(Icons.edit),
@@ -154,25 +157,25 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(height: 20),
                   Card(
                     child: ListTile(
-                      title: Text('Name'),
+                      title: Text('name'.tr),
                       subtitle: Text(userData['name'] ?? ''),
                     ),
                   ),
                   Card(
                     child: ListTile(
-                      title: Text('Phone Number'),
+                      title: Text('phone_number'.tr),
                       subtitle: Text(userData['phone'] ?? ''),
                     ),
                   ),
                   Card(
                     child: ListTile(
-                      title: Text('Birthdate'),
+                      title: Text('birth_date'.tr),
                       subtitle: Text(userData['birthdate'] ?? ''),
                     ),
                   ),
                   Card(
                     child: ListTile(
-                      title: Text('City'),
+                      title: Text('city'.tr),
                       subtitle: Text(userData['city'] ?? ''),
                     ),
                   ),
@@ -387,8 +390,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(
-        title: Text('Edit Profile'),
+        backgroundColor: Color.fromARGB(255, 41, 169, 92),
+        title: Text('edit_profile'.tr),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -396,18 +401,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: InputDecoration(labelText: 'Name'),
+              decoration: InputDecoration(labelText: 'name'.tr),
             ),
             SizedBox(height: 10),
             TextFormField(
               controller: _phoneController,
-              decoration: InputDecoration(labelText: 'Phone Number'),
+              decoration: InputDecoration(labelText: 'phone_number'.tr),
               keyboardType: TextInputType.phone,
             ),
             SizedBox(height: 10),
             TextFormField(
               controller: _birthdateController,
-              decoration: InputDecoration(labelText: 'Birthdate'),
+              decoration: InputDecoration(labelText: 'birth_date'.tr),
               onTap: () async {
                 DateTime? pickedDate = await showDatePicker(
                   context: context,
@@ -427,7 +432,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             SizedBox(height: 10),
             TextFormField(
               controller: _cityController,
-              decoration: InputDecoration(labelText: 'City'),
+              decoration: InputDecoration(labelText: 'city'.tr),
             ),
             SizedBox(height: 20),
             ElevatedButton(
@@ -440,7 +445,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 padding: EdgeInsets.symmetric(vertical: 15),
               ),
               child: Text(
-                'Save Changes',
+                'save_changes'.tr,
                 style: TextStyle(color: Colors.white),
               ),
             ),

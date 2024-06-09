@@ -358,16 +358,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    loginWithApple();
-                  },
-                  child: Image.asset(
-                    'images/apple-logo.png',
-                    width: 40,
-                    height: 40,
-                  ),
-                ),
+
                 GestureDetector(
                   onTap: () {
                     loginWithGoogle();
