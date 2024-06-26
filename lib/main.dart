@@ -20,7 +20,7 @@ Future<void> main() async {
   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
   ThemeMode savedThemeMode = ThemeMode.values[prefs.getInt('themeMode') ?? 0];
 
-  Widget homeScreen = isLoggedIn ? HomePage() : HomePage();
+  Widget homeScreen = isLoggedIn ? HomePage() : SplashScreen();
 
   runApp(
     ChangeNotifierProvider(
@@ -55,13 +55,14 @@ class MyApp extends StatelessWidget {
 }
 
 class DefaultFirebaseOptions {
-  static FirebaseOptions get currentPlatform => FirebaseOptions(    apiKey: "AIzaSyCdPXhfGyTxUHiPQDc3_ToZ5vcKF3miNtc",
-    authDomain: "wwew-fa4b6.firebaseapp.com",
-    projectId: "wwew-fa4b6",
-    storageBucket: "wwew-fa4b6.appspot.com",
-    messagingSenderId: "66751097136",
-    appId: "1:66751097136:web:2d89b8a4cfb72e60be40f5",
-  );
+  static FirebaseOptions get currentPlatform => FirebaseOptions(
+        apiKey: "AIzaSyCdPXhfGyTxUHiPQDc3_ToZ5vcKF3miNtc",
+        authDomain: "wwew-fa4b6.firebaseapp.com",
+        projectId: "wwew-fa4b6",
+        storageBucket: "wwew-fa4b6.appspot.com",
+        messagingSenderId: "66751097136",
+        appId: "1:66751097136:web:2d89b8a4cfb72e60be40f5",
+      );
 }
 
 class ThemeProvider extends ChangeNotifier {

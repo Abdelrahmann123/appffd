@@ -57,7 +57,7 @@ class _TrainerResPageState extends State<TrainerResPage> {
 
   Future<void> _pickProfileImage() async {
     final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _profileImage = File(pickedFile.path);
@@ -87,7 +87,7 @@ class _TrainerResPageState extends State<TrainerResPage> {
 
   Future<void> _pickPdf() async {
     final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _pdfFile = File(pickedFile.path);
@@ -105,7 +105,7 @@ class _TrainerResPageState extends State<TrainerResPage> {
       if (user != null) {
         // Check if the user has already submitted data
         DocumentSnapshot userData =
-            await _firestore.collection('trainer_requests').doc(user.uid).get();
+        await _firestore.collection('trainer_requests').doc(user.uid).get();
 
         if (userData.exists) {
           // If user is already registered as a trainer, open the trainer's page directly
@@ -118,7 +118,7 @@ class _TrainerResPageState extends State<TrainerResPage> {
         } else {
           // Upload images to Firebase Storage
           String profileImageUrl =
-              await _uploadImage(_profileImage, 'profile_images');
+          await _uploadImage(_profileImage, 'profile_images');
           String idImageUrl = await _uploadImage(_idImage, 'id_images');
           List<String> certificatesImageUrls = await Future.wait(
             _certificatesImages
@@ -166,7 +166,7 @@ class _TrainerResPageState extends State<TrainerResPage> {
     } finally {
       setState(() {
         _isLoading =
-            false; // تعطيل حالة التحميل بغض النظر عن نجاح أو فشل العملية
+        false; // تعطيل حالة التحميل بغض النظر عن نجاح أو فشل العملية
       });
     }
   }
@@ -176,7 +176,7 @@ class _TrainerResPageState extends State<TrainerResPage> {
       if (image != null) {
         String imageName = DateTime.now().millisecondsSinceEpoch.toString();
         Reference storageReference =
-            FirebaseStorage.instance.ref().child('$folder/$imageName');
+        FirebaseStorage.instance.ref().child('$folder/$imageName');
         UploadTask uploadTask = storageReference.putFile(image);
         await uploadTask.whenComplete(() => null);
         return await storageReference.getDownloadURL();
@@ -194,7 +194,7 @@ class _TrainerResPageState extends State<TrainerResPage> {
       if (pdf != null) {
         String pdfName = DateTime.now().millisecondsSinceEpoch.toString();
         Reference storageReference =
-            FirebaseStorage.instance.ref().child('pdfs/$pdfName');
+        FirebaseStorage.instance.ref().child('pdfs/$pdfName');
         UploadTask uploadTask = storageReference.putFile(pdf);
         await uploadTask.whenComplete(() => null);
         return await storageReference.getDownloadURL();
@@ -216,463 +216,347 @@ class _TrainerResPageState extends State<TrainerResPage> {
       ),
       body: _isLoading // شاشة التحميل
           ? Center(
-              child: CircularProgressIndicator(),
-            )
+        child: CircularProgressIndicator(),
+      )
           : Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Upload_Profile_Image'.tr,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        padding: const EdgeInsets.all(20.0),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Upload_Profile_Image'.tr,
+                style:
+                TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              _buildUploadButton(
+                'Pick_Profile_Image'.tr,
+                _pickProfileImage,
+                Icons.image,
+              ),
+              if (_profileImage != null) Image.file(_profileImage!),
+              SizedBox(height: 20),
+              // البيانات الشخصية
+              Text(
+                'Personal_Information'.tr,
+                style:
+                TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Full_Name'.tr,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  filled: false,
+                  fillColor: Colors.grey[200],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 41, 169, 92),
                     ),
-                    SizedBox(height: 10),
-                    _buildUploadButton(
-                      'Pick_Profile_Image'.tr,
-                      _pickProfileImage,
-                      Icons.image,
-                    ),
-                    if (_profileImage != null) Image.file(_profileImage!),
-                    SizedBox(height: 20),
-                    // البيانات الشخصية
-                    Text(
-                      'Personal_Information'.tr,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: 'Full_Name'.tr,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        filled: false,
-                        fillColor: Colors.grey[200],
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                            color: Color.fromARGB(255, 41, 169, 92),
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorStyle: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    TextField(
-                      controller: _ageController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'age'.tr,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        filled: false,
-                        fillColor: Colors.grey[200],
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                            color: Color.fromARGB(255, 41, 169, 92),
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorStyle: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    TextField(
-                      controller: _numberController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'phone_number'.tr,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        filled: false,
-                        fillColor: Colors.grey[200],
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                            color: Color.fromARGB(255, 41, 169, 92),
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorStyle: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    TextField(
-                      controller: _addressController,
-                      decoration: InputDecoration(
-                        labelText: 'address'.tr,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        filled: false,
-                        fillColor: Colors.grey[200],
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                            color: Color.fromARGB(255, 41, 169, 92),
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorStyle: TextStyle(color: Colors.red),
-                      ),
-                    ),
-
-                    SizedBox(height: 20),
-                    // الخبرة
-                    Text(
-                      'experience'.tr,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      controller: _experienceController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'Experience_(years)'.tr,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        filled: false,
-                        fillColor: Colors.grey[200],
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                            color: Color.fromARGB(255, 41, 169, 92),
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorStyle: TextStyle(color: Colors.red),
-                      ),
-                    ),
-
-                    SizedBox(height: 20),
-                    // وسائل التواصل الاجتماعي
-                    Text(
-                      'Social_Media'.tr,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      controller: _facebookController,
-                      decoration: InputDecoration(
-                        labelText: 'facebook'.tr,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        filled: false,
-                        fillColor: Colors.grey[200],
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                            color: Color.fromARGB(255, 41, 169, 92),
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorStyle: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    TextField(
-                      controller: _twitterController,
-                      decoration: InputDecoration(
-                        labelText: 'twitter'.tr,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        filled: false,
-                        fillColor: Colors.grey[200],
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                            color: Color.fromARGB(255, 41, 169, 92),
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorStyle: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    TextField(
-                      controller: _instagramController,
-                      decoration: InputDecoration(
-                        labelText: 'instagram'.tr,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        filled: false,
-                        fillColor: Colors.grey[200],
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                            color: Color.fromARGB(255, 41, 169, 92),
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorStyle: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    TextField(
-                      controller: _youtubeController,
-                      decoration: InputDecoration(
-                        labelText: 'youtube'.tr,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        filled: false,
-                        fillColor: Colors.grey[200],
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                            color: Color.fromARGB(255, 41, 169, 92),
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorStyle: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    TextField(
-                      controller: _linkedinController,
-                      decoration: InputDecoration(
-                        labelText: 'linkedIn'.tr,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        filled: false,
-                        fillColor: Colors.grey[200],
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                            color: Color.fromARGB(255, 41, 169, 92),
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorStyle: TextStyle(color: Colors.red),
-                      ),
-                    ),
-
-                    SizedBox(height: 20),
-                    // الرياضة
-                    Text(
-                      'sport'.tr,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 10),
-                    DropdownButtonFormField<String>(
-                      value: _selectedSport,
-                      decoration: InputDecoration(
-                        labelText: 'sport'.tr,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.grey),
-                        ),
-                        filled: false,
-                        fillColor: Colors.grey[200],
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                            color: Color.fromARGB(255, 41, 169, 92),
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(color: Colors.red),
-                        ),
-                        errorStyle: TextStyle(color: Colors.red),
-                      ),
-                      items: [
-                        'football'.tr,
-                        'swimming'.tr,
-                        'badminton'.tr,
-                        'gym'.tr,
-                        'Combat_Games'.tr
-                      ].map((sport) {
-                        return DropdownMenuItem<String>(
-                          value: sport,
-                          child: Text(sport),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedSport = value!;
-                        });
-                      },
-                    ),
-
-                    SizedBox(height: 20),
-                    // صورة الهوية
-                    Text(
-                      'Upload_ID_Image'.tr,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 10),
-                    _idImage != null
-                        ? Image.file(
-                            _idImage!,
-                            height: 150,
-                            width: 150,
-                            fit: BoxFit.cover,
-                          )
-                        : Container(),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildUploadButton(
-                            'Choose_Image'.tr,
-                            () => _pickImage(
-                              ImageSource.gallery,
-                            ),
-                            Icons.photo,
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: _buildUploadButton(
-                            'Take_Photo'.tr,
-                            () => _pickImage(ImageSource.camera),
-                            Icons.camera_alt,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                    // صور الشهادات
-                    Text(
-                      'Upload_Certificates_Images'.tr,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 10),
-                    _buildUploadButton(
-                      'Pick_Certificates_Images'.tr,
-                      _pickCertificateImages,
-                      Icons.image,
-                    ),
-                    for (int i = 0; i < _certificatesImages.length; i++)
-                      if (_certificatesImages[i] != null)
-                        Image.file(_certificatesImages[i]!),
-                    SizedBox(height: 10),
-                    // ملف PDF
-                    _pdfFile != null ? Text(_pdfFile!.path) : Container(),
-                    _buildUploadButton(
-                      'Choose_PDF'.tr,
-                      _pickPdf,
-                      Icons.picture_as_pdf,
-                    ),
-                    SizedBox(height: 20),
-                    // زر الإرسال
-                    _buildUploadButton(
-                      'submit'.tr,
-                      _submitData,
-                      Icons.send,
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _ageController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Age'.tr,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  filled: false,
+                  fillColor: Colors.grey[200],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 41, 169, 92),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _numberController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Number'.tr,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  filled: false,
+                  fillColor: Colors.grey[200],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 41, 169, 92),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _addressController,
+                decoration: InputDecoration(
+                  labelText: 'Address'.tr,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  filled: false,
+                  fillColor: Colors.grey[200],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 41, 169, 92),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _experienceController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Years_of_Experience'.tr,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  filled: false,
+                  fillColor: Colors.grey[200],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 41, 169, 92),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              // الاختصاص الرياضي
+              Text(
+                'Sports_Specialty'.tr,
+                style:
+                TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: _selectedSport,
+                items: <String>[
+                  'football'.tr,
+                  'basketball'.tr,
+                  'volleyball'.tr,
+                  'handball'.tr,
+                  'boxing'.tr,
+                  'swimming'.tr,
+                  'running'.tr,
+                  'bodybuilding'.tr,
+                  'fitness'.tr,
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedSport = newValue!;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Select_Sport'.tr,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  filled: false,
+                  fillColor: Colors.grey[200],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 41, 169, 92),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              // صورة البطاقة الشخصية
+              Text(
+                'Upload_ID_Image'.tr,
+                style:
+                TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              _buildUploadButton(
+                'Pick_ID_Image'.tr,
+                    () => _pickImage(ImageSource.gallery),
+                Icons.image,
+              ),
+              if (_idImage != null) Image.file(_idImage!),
+              SizedBox(height: 20),
+              // صور الشهادات
+              Text(
+                'Upload_Certificates_Images'.tr,
+                style:
+                TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              _buildUploadButton(
+                'Pick_Certificates_Images'.tr,
+                _pickCertificateImages,
+                Icons.image,
+              ),
+              if (_certificatesImages.isNotEmpty)
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: _certificatesImages
+                        .map((image) =>
+                    image != null ? Image.file(image) : Container())
+                        .toList(),
+                  ),
+                ),
+              SizedBox(height: 20),
+              // ملف الـ PDF
+              Text(
+                'Upload_PDF_File'.tr,
+                style:
+                TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              _buildUploadButton(
+                'Pick_PDF_File'.tr,
+                _pickPdf,
+                Icons.picture_as_pdf,
+              ),
+              if (_pdfFile != null)
+                Text('Selected PDF: ${_pdfFile!.path}'),
+              SizedBox(height: 20),
+              // روابط التواصل الاجتماعي
+              Text(
+                'Social_Media_Links'.tr,
+                style:
+                TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _facebookController,
+                decoration: InputDecoration(
+                  labelText: 'Facebook_Profile'.tr,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  filled: false,
+                  fillColor: Colors.grey[200],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 41, 169, 92),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _twitterController,
+                decoration: InputDecoration(
+                  labelText: 'Twitter_Profile'.tr,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  filled: false,
+                  fillColor: Colors.grey[200],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 41, 169, 92),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _instagramController,
+                decoration: InputDecoration(
+                  labelText: 'Instagram_Profile'.tr,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  filled: false,
+                  fillColor: Colors.grey[200],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 41, 169, 92),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _youtubeController,
+                decoration: InputDecoration(
+                  labelText: 'YouTube_Channel'.tr,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  filled: false,
+                  fillColor: Colors.grey[200],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 41, 169, 92),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _linkedinController,
+                decoration: InputDecoration(
+                  labelText: 'LinkedIn_Profile'.tr,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  filled: false,
+                  fillColor: Colors.grey[200],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 41, 169, 92),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              // زر الإرسال
+              _buildUploadButton(
+                'Submit'.tr,
+                _submitData,
+                Icons.check,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
-
 class CheckUserPage extends StatelessWidget {
   const CheckUserPage({Key? key}) : super(key: key);
 

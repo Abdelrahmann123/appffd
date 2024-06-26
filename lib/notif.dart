@@ -6,6 +6,7 @@ import 'package:untitled17/profhome.dart';
 import 'package:untitled17/screens/history.dart';
 import 'package:untitled17/screens/home_page.dart';
 import 'package:untitled17/screens/side_menu.dart';
+import 'package:untitled17/screens/userevent.dart';
 
 import 'events.dart';
 import 'main.dart';
@@ -23,22 +24,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
     double displayWidth = MediaQuery.of(context).size.width;
     var themeProvider = Provider.of<ThemeProvider>(context);
 
-    Color appBarColor = themeProvider.themeMode == ThemeMode.dark
-        ? Colors.black
-        : Color.fromARGB(255, 221, 225, 231);
-    Color backgroundColor = themeProvider.themeMode == ThemeMode.dark
-        ? Colors.grey[900]!
-        : Color(0xffF5F5F5);
-    Color textColor =
-        themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
-    Color backButtonColor =
-        themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
-
+    Color textColor = themeProvider.themeMode == ThemeMode.dark
+        ? Colors.grey[200]!
+        : Colors.black;
+    Color cardColor = themeProvider.themeMode == ThemeMode.dark
+        ? const Color.fromARGB(255, 0, 0, 0)!
+        : const Color.fromARGB(255, 238, 238, 238);
+    Color backButtonColor = themeProvider.themeMode == ThemeMode.dark
+        ? Colors.grey[200]!
+        : Colors.black;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: themeProvider.themeMode == ThemeMode.dark
-            ? Colors.grey[800]
-            : Color.fromARGB(255, 41, 169, 92),
+        backgroundColor: Color.fromARGB(255, 41, 169, 92),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -93,7 +90,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                 margin: EdgeInsets.symmetric(vertical: 8.0),
                                 padding: EdgeInsets.all(16.0),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: cardColor,
                                   borderRadius: BorderRadius.circular(12.0),
                                   boxShadow: [
                                     BoxShadow(
@@ -108,7 +105,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'New events have been added with a name: $eventName',
+                                      'New events have been added with a name: $eventName'
+                                          .tr,
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -117,10 +115,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                     ),
                                     SizedBox(height: 8),
                                     Text(
-                                      'event type: $eventType',
+                                      'event type: $eventType'.tr,
                                       style: TextStyle(
                                         fontSize: 16,
-                                        color: Colors.grey[600],
+                                        color: textColor,
                                       ),
                                     ),
                                     SizedBox(height: 8),
@@ -129,7 +127,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                           .tr,
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.grey[600],
+                                        color: textColor,
                                       ),
                                     ),
                                   ],
@@ -148,17 +146,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
         ),
       ),
       bottomNavigationBar: Container(
-        margin: EdgeInsets.all(displayWidth * .05),
+        margin: EdgeInsets.only(
+            bottom: displayWidth * .05,
+            right: displayWidth * .05,
+            left: displayWidth * .05),
         height: displayWidth * .155,
         decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(.1),
-                blurRadius: 30,
-                offset: Offset(0, 10),
-              ),
-            ],
+            color: themeProvider.themeMode == ThemeMode.dark
+                ? Color.fromARGB(255, 41, 41, 41)
+                : Colors.white,
             borderRadius: BorderRadius.circular(50)),
         child: StatefulBuilder(
           builder: (context, setStateHistory) {
@@ -178,7 +174,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => HistoryPage()));
+                              builder: (context) => SubscribersPage()));
                     } else if (index == 3) {
                       Navigator.push(
                           context,
@@ -186,6 +182,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                               builder: (context) => ProfilePage()));
                     }
                   });
+                  index:
+                  2;
                 },
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
@@ -195,14 +193,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       duration: Duration(seconds: 1),
                       curve: Curves.fastLinearToSlowEaseIn,
                       width: index == currentIndex
-                          ? displayWidth * .32
-                          : displayWidth * .18,
+                          ? displayWidth * .36
+                          : displayWidth * .19,
                       alignment: Alignment.center,
                       child: AnimatedContainer(
                         duration: Duration(seconds: 1),
                         curve: Curves.fastLinearToSlowEaseIn,
                         height: index == currentIndex ? displayWidth * .12 : 0,
-                        width: index == currentIndex ? displayWidth * .32 : 0,
+                        width: index == currentIndex ? displayWidth * .50 : 0,
                         decoration: BoxDecoration(
                             color: index == currentIndex
                                 ? Color.fromARGB(255, 134, 140, 143)
@@ -238,7 +236,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                       ? '${listOfString[index]}'
                                       : '',
                                   style: TextStyle(
-                                    color: Colors.black87,
+                                    color: textColor,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
                                   ),
@@ -252,28 +250,25 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                 duration: Duration(seconds: 1),
                                 curve: Curves.fastLinearToSlowEaseIn,
                                 width: index == currentIndex
-                                    ? displayWidth * .03
+                                    ? displayWidth * .02
                                     : 20,
                               ),
-                              index == 1
+                              index == currentIndex
                                   ? ScaleTransition(
                                       scale: CurvedAnimation(
-                                          parent: AlwaysStoppedAnimation(1),
-                                          curve: Curves.fastLinearToSlowEaseIn),
+                                        parent: AlwaysStoppedAnimation(1),
+                                        curve: Curves.fastLinearToSlowEaseIn,
+                                      ),
                                       child: Icon(
                                         listOfIcons[index],
                                         size: displayWidth * .076,
-                                        color: index == currentIndex
-                                            ? Colors.black87
-                                            : Colors.black26,
+                                        color: textColor,
                                       ),
                                     )
                                   : Icon(
                                       listOfIcons[index],
                                       size: displayWidth * .076,
-                                      color: index == currentIndex
-                                          ? Colors.black87
-                                          : Colors.black26,
+                                      color: Colors.black26,
                                     ),
                             ],
                           )

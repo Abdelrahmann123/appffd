@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled17/main.dart';
 import 'package:untitled17/screens/history.dart';
 import 'package:untitled17/screens/home_page.dart';
 import 'package:untitled17/screens/side_menu.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:untitled17/screens/userevent.dart';
 import 'constants.dart';
 import 'notif.dart';
 
@@ -38,7 +42,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
     setState(() {
       userData = userDoc.data() as Map<String, dynamic>;
-      isLoading = false;
+    });
+
+    // إضافة تأخير لإخفاء وسم التحميل بعد مرور 2 ثانية
+    Future.delayed(Duration(milliseconds: 1500), () {
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 
@@ -57,6 +67,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    var themeProvider = Provider.of<ThemeProvider>(context);
+
+    Color textColor = themeProvider.themeMode == ThemeMode.dark
+        ? Colors.grey[200]!
+        : Colors.black;
+
     double displayWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
@@ -70,7 +86,14 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator()) // عرض التحميل
+          ? Center(
+              child: Lottie.asset(
+                'images/animation/loading.json',
+                height: 250,
+                width: 250,
+                repeat: true,
+              ),
+            ) // عرض وسم التحميل // عرض التحميل
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: ListView(
@@ -183,17 +206,15 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
       bottomNavigationBar: Container(
-        margin: EdgeInsets.all(displayWidth * .05),
+        margin: EdgeInsets.only(
+            bottom: displayWidth * .05,
+            right: displayWidth * .05,
+            left: displayWidth * .05),
         height: displayWidth * .155,
         decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(.1),
-                blurRadius: 30,
-                offset: Offset(0, 10),
-              ),
-            ],
+            color: themeProvider.themeMode == ThemeMode.dark
+                ? Color.fromARGB(255, 41, 41, 41)
+                : Colors.white,
             borderRadius: BorderRadius.circular(50)),
         child: StatefulBuilder(
           builder: (context, setStateHistory) {
@@ -213,7 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => HistoryPage()));
+                              builder: (context) => SubscribersPage()));
                     } else if (index == 2) {
                       Navigator.push(
                           context,
@@ -275,7 +296,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ? '${listOfString[index]}'
                                       : '',
                                   style: TextStyle(
-                                    color: Colors.black87,
+                                    color: textColor,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
                                   ),
@@ -292,25 +313,22 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ? displayWidth * .03
                                     : 20,
                               ),
-                              index == 1
+                              index == currentIndex
                                   ? ScaleTransition(
                                       scale: CurvedAnimation(
-                                          parent: AlwaysStoppedAnimation(1),
-                                          curve: Curves.fastLinearToSlowEaseIn),
+                                        parent: AlwaysStoppedAnimation(1),
+                                        curve: Curves.fastLinearToSlowEaseIn,
+                                      ),
                                       child: Icon(
                                         listOfIcons[index],
                                         size: displayWidth * .076,
-                                        color: index == currentIndex
-                                            ? Colors.black87
-                                            : Colors.black26,
+                                        color: textColor,
                                       ),
                                     )
                                   : Icon(
                                       listOfIcons[index],
                                       size: displayWidth * .076,
-                                      color: index == currentIndex
-                                          ? Colors.black87
-                                          : Colors.black26,
+                                      color: Colors.black26,
                                     ),
                             ],
                           )
@@ -389,8 +407,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    var themeProvider = Provider.of<ThemeProvider>(context);
+
+    Color textColor = themeProvider.themeMode == ThemeMode.dark
+        ? Colors.grey[200]!
+        : Colors.black;
+    Color backgroundColor = themeProvider.themeMode == ThemeMode.dark
+        ? Color.fromARGB(255, 32, 32, 32)
+        : Colors.grey[200]!;
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 41, 169, 92),
         title: Text('edit_profile'.tr),
@@ -401,18 +427,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: InputDecoration(labelText: 'name'.tr),
+              decoration: InputDecoration(
+                  labelText: 'name'.tr,
+                  labelStyle: TextStyle(color: textColor)),
             ),
             SizedBox(height: 10),
             TextFormField(
               controller: _phoneController,
-              decoration: InputDecoration(labelText: 'phone_number'.tr),
+              decoration: InputDecoration(
+                  labelText: 'phone_number'.tr,
+                  labelStyle: TextStyle(color: textColor)),
               keyboardType: TextInputType.phone,
             ),
             SizedBox(height: 10),
             TextFormField(
               controller: _birthdateController,
-              decoration: InputDecoration(labelText: 'birth_date'.tr),
+              decoration: InputDecoration(
+                  labelText: 'birth_date'.tr,
+                  labelStyle: TextStyle(color: textColor)),
               onTap: () async {
                 DateTime? pickedDate = await showDatePicker(
                   context: context,
@@ -432,7 +464,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
             SizedBox(height: 10),
             TextFormField(
               controller: _cityController,
-              decoration: InputDecoration(labelText: 'city'.tr),
+              decoration: InputDecoration(
+                  labelText: 'city'.tr,
+                  labelStyle: TextStyle(color: textColor)),
             ),
             SizedBox(height: 20),
             ElevatedButton(

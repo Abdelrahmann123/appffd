@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:untitled17/main.dart';
 import 'package:untitled17/screens/playdet.dart';
+import 'package:provider/provider.dart';
 
 import 'constants.dart';
 
@@ -17,16 +19,26 @@ class _PlaygroundState extends State<Playground> {
 
   @override
   Widget build(BuildContext context) {
+    var themeProvider = Provider.of<ThemeProvider>(context);
+
+ 
+    Color textColor = themeProvider.themeMode == ThemeMode.dark
+        ? Colors.grey[200]!
+        : Colors.black;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 41, 169, 92),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: textColor),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        title: Text('playground'.tr),
+        title: Text(
+          'playground'.tr,
+          style: TextStyle(color: textColor),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -140,7 +152,6 @@ class PlaygroundCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // استخراج قائمة الصور من المصفوفة داخل imageUrl
     List<String> imageUrls = (data['imageUrl'] as List<dynamic>).cast<String>();
     final price = data['price'] as String? ?? '';
     final name = data['name'] as String? ?? '';
@@ -157,7 +168,6 @@ class PlaygroundCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // عرض الصور باستخدام ListView.builder()
           ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
@@ -267,6 +277,11 @@ class Category extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var themeProvider = Provider.of<ThemeProvider>(context);
+    Color textColor = themeProvider.themeMode == ThemeMode.dark
+        ? Colors.grey[200]!
+        : Colors.black;
+
     return Column(
       children: [
         Container(
@@ -281,15 +296,20 @@ class Category extends StatelessWidget {
                     child: Row(
                       children: [
                         const SizedBox(width: 12),
-                        categoryIcon('paddel'.tr, "images/paddel.jpeg"),
+                        categoryIcon(
+                            'paddel'.tr, "images/paddel.jpeg", textColor),
                         const SizedBox(width: 12),
-                        categoryIcon('football'.tr, "images/football.jpeg"),
+                        categoryIcon(
+                            'football'.tr, "images/football.jpeg", textColor),
                         const SizedBox(width: 12),
-                        categoryIcon('basketball'.tr, "images/basketball.jpeg"),
+                        categoryIcon('basketball'.tr, "images/basketball.jpeg",
+                            textColor),
                         const SizedBox(width: 12),
-                        categoryIcon('volleyball'.tr, "images/volleyball.jpeg"),
+                        categoryIcon('volleyball'.tr, "images/volleyball.jpeg",
+                            textColor),
                         const SizedBox(width: 12),
-                        categoryIcon('tennis', "images/tennis.jpeg"),
+                        categoryIcon(
+                            'tennis'.tr, "images/tennis.jpeg", textColor),
                       ],
                     ),
                   ),
@@ -303,7 +323,7 @@ class Category extends StatelessWidget {
     );
   }
 
-  Widget categoryIcon(String text, String image) {
+  Widget categoryIcon(String text, String image, Color textColor) {
     return SizedBox(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -325,7 +345,7 @@ class Category extends StatelessWidget {
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: Colors.black87,
+                color: textColor,
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
               ),
@@ -346,7 +366,8 @@ class _DistrictListState extends State<DistrictList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar(        backgroundColor: Color.fromARGB(255, 41, 169, 92),
+
         title: Text('Districts'),
       ),
       body: ListView(

@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:get/get.dart';
+import 'package:untitled17/main.dart';
 import 'package:untitled17/payments.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -31,6 +33,8 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
 
   @override
   Widget build(BuildContext context) {
+    var themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 41, 169, 92),
@@ -91,7 +95,7 @@ class _DisplayTrainersPageState extends State<DisplayTrainersPage> {
             SizedBox(
               height: 18,
             ),
-            Category(),
+            Category(themeProvider: themeProvider), // تمرير themeProvider هنا
             const Divider(
               thickness: 0.5,
               color: Colors.grey,
@@ -148,6 +152,13 @@ class TrainerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var themeProvider = Provider.of<ThemeProvider>(context);
+    Color cardColor = themeProvider.themeMode == ThemeMode.dark
+        ? const Color.fromARGB(255, 0, 0, 0)!
+        : const Color.fromARGB(255, 238, 238, 238);
+    Color textColor = themeProvider.themeMode == ThemeMode.dark
+        ? Colors.grey[200]!
+        : Colors.black;
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -158,7 +169,7 @@ class TrainerCard extends StatelessWidget {
         );
       },
       child: Card(
-        color: Colors.grey[300],
+        color: cardColor,
         elevation: 5,
         margin: EdgeInsets.all(10),
         child: Padding(
@@ -191,29 +202,23 @@ class TrainerCard extends StatelessWidget {
                 ),
               SizedBox(height: 10),
               Text(
-                'name: ${trainer['name']}'.tr,
+                'name:'.tr + '  ${trainer['name']}'.tr,
                 style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: textColor),
               ),
               Text(
-                'experience: ${trainer['experience']} years'.tr,
-                style: TextStyle(
-                  fontSize: 18,
-                ),
+                'experience'.tr + ' :${trainer['experience']} ' + 'years'.tr,
+                style: TextStyle(fontSize: 18, color: textColor),
               ),
               Text(
-                'age: ${trainer['age']}'.tr,
-                style: TextStyle(
-                  fontSize: 18,
-                ),
+                'age:'.tr + ' ${trainer['age']}'.tr,
+                style: TextStyle(fontSize: 18, color: textColor),
               ),
               Text(
-                'sport: ${trainer['sport']}'.tr,
-                style: TextStyle(
-                  fontSize: 18,
-                ),
+                'sport:'.tr + ' ${trainer['sport']}'.tr,
+                style: TextStyle(fontSize: 18, color: textColor),
               ),
               SizedBox(height: 10),
               Row(
@@ -296,10 +301,16 @@ class TrainerCard extends StatelessWidget {
 }
 
 class Category extends StatelessWidget {
-  const Category({Key? key});
+  final ThemeProvider themeProvider;
+
+  const Category({Key? key, required this.themeProvider});
 
   @override
   Widget build(BuildContext context) {
+    Color textColor = themeProvider.themeMode == ThemeMode.dark
+        ? Colors.grey[200]!
+        : Colors.black;
+
     return Column(
       children: [
         Container(
@@ -314,15 +325,20 @@ class Category extends StatelessWidget {
                     child: Row(
                       children: [
                         const SizedBox(width: 12),
-                        categoryIcon('paddel'.tr, "images/paddel.jpeg"),
+                        categoryIcon(
+                            'paddel'.tr, "images/paddel.jpeg", textColor),
                         const SizedBox(width: 12),
-                        categoryIcon('football'.tr, "images/football.jpeg"),
+                        categoryIcon(
+                            'football'.tr, "images/football.jpeg", textColor),
                         const SizedBox(width: 12),
-                        categoryIcon('basketball'.tr, "images/basketball.jpeg"),
+                        categoryIcon('basketball'.tr, "images/basketball.jpeg",
+                            textColor),
                         const SizedBox(width: 12),
-                        categoryIcon('volleyball'.tr, "images/volleyball.jpeg"),
+                        categoryIcon('volleyball'.tr, "images/volleyball.jpeg",
+                            textColor),
                         const SizedBox(width: 12),
-                        categoryIcon('tennis'.tr, "images/tennis.jpeg"),
+                        categoryIcon(
+                            'tennis'.tr, "images/tennis.jpeg", textColor),
                       ],
                     ),
                   ),
@@ -336,7 +352,7 @@ class Category extends StatelessWidget {
     );
   }
 
-  Widget categoryIcon(String text, String image) {
+  Widget categoryIcon(String text, String image, Color textColor) {
     return SizedBox(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -358,7 +374,7 @@ class Category extends StatelessWidget {
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: Colors.black87,
+                color: textColor,
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
               ),
@@ -377,6 +393,13 @@ class TrainerDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var themeProvider = Provider.of<ThemeProvider>(context);
+    Color cardColor = themeProvider.themeMode == ThemeMode.dark
+        ? const Color.fromARGB(255, 0, 0, 0)!
+        : const Color.fromARGB(255, 238, 238, 238);
+    Color textColor = themeProvider.themeMode == ThemeMode.dark
+        ? Colors.grey[200]!
+        : Colors.black;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 41, 169, 92),
@@ -411,14 +434,17 @@ class TrainerDetailsScreen extends StatelessWidget {
                 ),
               ),
             SizedBox(height: 20),
-            _buildInfoItem('name:'.tr, '${trainer['name']}'.tr),
+            _buildInfoItem(
+                context, 'name:'.tr, '${trainer['name']}'.tr, textColor),
+            SizedBox(height: 8),
+            _buildInfoItem(context, 'experience:'.tr,
+                '${trainer['experience']} ' + 'years'.tr, textColor),
             SizedBox(height: 8),
             _buildInfoItem(
-                'experience:'.tr, '${trainer['experience']} years'),
+                context, 'age:'.tr, '${trainer['age']}'.tr, textColor),
             SizedBox(height: 8),
-            _buildInfoItem('age:'.tr, '${trainer['age']}'.tr),
-            SizedBox(height: 8),
-            _buildInfoItem('sport:', '${trainer['sport']}'.tr),
+            _buildInfoItem(
+                context, 'sport:'.tr, '${trainer['sport']}'.tr, textColor),
             SizedBox(height: 15),
             Container(
               width: double.infinity,
@@ -458,21 +484,18 @@ class TrainerDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoItem(String title, String value) {
+  Widget _buildInfoItem(
+      BuildContext context, String title, String value, Color textColor) {
+    var themeProvider = Provider.of<ThemeProvider>(context);
+    Color cardColor = themeProvider.themeMode == ThemeMode.dark
+        ? const Color.fromARGB(255, 0, 0, 0)!
+        : const Color.fromARGB(255, 238, 238, 238);
     return Container(
       margin: EdgeInsets.only(bottom: 10),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -482,7 +505,7 @@ class TrainerDetailsScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: textColor,
             ),
           ),
           Text(

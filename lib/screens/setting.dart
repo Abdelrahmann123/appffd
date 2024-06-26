@@ -22,25 +22,24 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     var themeProvider = Provider.of<ThemeProvider>(context);
 
-    Color appBarColor = themeProvider.themeMode == ThemeMode.dark
-        ? Colors.black
-        : Color.fromARGB(255, 221, 225, 231);
-    Color backgroundColor = themeProvider.themeMode == ThemeMode.dark
-        ? Colors.grey[900]!
-        : Color(0xffF5F5F5);
-    Color textColor =
-    themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
-    Color backButtonColor =
-    themeProvider.themeMode == ThemeMode.dark ? Colors.white : Colors.black;
+    Color textColor = themeProvider.themeMode == ThemeMode.dark
+        ? Colors.grey[200]!
+        : Colors.black;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'settings'.tr,
-          style: TextStyle(color: textColor),
         ),
         backgroundColor: Color.fromARGB(255, 41, 169, 92),
-        iconTheme: IconThemeData(color: backButtonColor),
+        iconTheme: IconThemeData(color: textColor),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          color: textColor,
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: ListView(
         children: [
@@ -107,7 +106,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     onChanged: (String? newValue) {
                       if (newValue != null) {
                         controller.sevedLang.value = newValue;
-                        Locale locale = Locale(newValue.toLowerCase() == 'arabic' ? 'ar' : 'en');
+                        Locale locale = Locale(
+                            newValue.toLowerCase() == 'Arabic' ? 'ar' : 'en');
                         controller.saveLocale();
                         Get.updateLocale(locale);
                         setState(() {
@@ -115,7 +115,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         });
                       }
                     },
-                    items: ['English', 'Arabic']
+                    items: ['Arabic', 'English']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,

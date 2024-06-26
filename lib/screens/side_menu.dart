@@ -79,6 +79,8 @@ class SideMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     return Drawer(
       child: Container(
         color: const Color.fromARGB(255, 55, 55, 55),
@@ -108,8 +110,7 @@ class SideMenu extends StatelessWidget {
                 color: Color.fromARGB(255, 55, 55, 55),
               ),
             ),
-            SizedBox(height: 100),
-
+            SizedBox(height: screenHeight * 0.05),
             _buildMenuItem('beATrainer'.tr, Icons.group_add, () async {
               User? user = FirebaseAuth.instance.currentUser;
 
@@ -141,7 +142,6 @@ class SideMenu extends StatelessWidget {
                 }
               }
             }),
-
             _buildMenuItem('settings'.tr, Icons.settings, () {
               Navigator.push(
                 context,
@@ -154,25 +154,19 @@ class SideMenu extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => ProfilePage()),
               );
             }),
-            _buildMenuItem('search'.tr, Icons.search, () {
+            _buildMenuItem('history'.tr, Icons.history_rounded, () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => SubscribersPage()),
               );
             }),
-            _buildMenuItem('favorites'.tr, Icons.favorite, () {
-              // اضف الاجراء الذي تريده لهذا الزر
-            }),
-            SizedBox(height: 125),
+            Spacer(),
             const Divider(
               color: Colors.white,
             ),
-            SizedBox(height: 2),
             _buildMenuItem('logOut'.tr, Icons.logout, () {
               Navigator.popUntil(context, ModalRoute.withName('/'));
             }),
-
-            // هنا يمكنك إضافة زر جديد
             _buildMenuItem('trainer'.tr, Icons.accessibility_sharp, () {
               // طلب كلمة المرور
               _requestPassword(context, () {
@@ -183,6 +177,7 @@ class SideMenu extends StatelessWidget {
                 );
               });
             }),
+            SizedBox(height: screenHeight * 0.05),
           ],
         ),
       ),

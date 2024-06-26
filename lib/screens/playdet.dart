@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled17/main.dart';
 import 'package:untitled17/screens/vod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,11 +11,16 @@ import '../constants.dart';
 class PlaygroundDetailsPage extends StatelessWidget {
   final Map<String, dynamic> playgroundData;
 
-  const PlaygroundDetailsPage({Key? key, required this.playgroundData})
-      : super(key: key);
+  const PlaygroundDetailsPage({Key? key, required this.playgroundData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var themeProvider = Provider.of<ThemeProvider>(context);
+
+    Color buttonColor = themeProvider.themeMode == ThemeMode.dark
+        ? Color.fromARGB(255, 41, 169, 92)
+        : Color.fromARGB(255, 115, 113, 113);
+    Color textColor = themeProvider.themeMode == ThemeMode.dark ? Colors.grey[200]! : Colors.black;
     if (playgroundData == null || playgroundData.isEmpty) {
       return Scaffold(
         appBar: AppBar(
@@ -50,12 +57,15 @@ class PlaygroundDetailsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: _buildDetail('name:'.tr, playgroundData['name']),
+                    child: _buildDetail(
+                      context,
+                      'name:'.tr,
+                      playgroundData['name'],
+                    ),
                   ),
                   SizedBox(width: 16),
                   Expanded(
-                    child:
-                        _buildDetail('sport_type'.tr, playgroundData['type']),
+                    child: _buildDetail(context, 'sport_type'.tr, playgroundData['type']),
                   ),
                 ],
               ),
@@ -70,6 +80,7 @@ class PlaygroundDetailsPage extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _buildDetail(
+                          context,
                           'description'.tr,
                           playgroundData['stadiumDetails'],
                         ),
@@ -86,13 +97,11 @@ class PlaygroundDetailsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: _buildDetail(
-                        'open_time'.tr, playgroundData['openTime']),
+                    child: _buildDetail(context, 'open_time'.tr, playgroundData['openTime']),
                   ),
                   SizedBox(width: 16),
                   Expanded(
-                    child: _buildDetail(
-                        'close_time'.tr, playgroundData['closeTime']),
+                    child: _buildDetail(context, 'close_time'.tr, playgroundData['closeTime']),
                   ),
                 ],
               ),
@@ -103,12 +112,11 @@ class PlaygroundDetailsPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: _buildDetail('price'.tr, playgroundData['price']),
+                    child: _buildDetail(context, 'price'.tr, playgroundData['price']),
                   ),
                   SizedBox(width: 16),
                   Expanded(
-                    child:
-                        _buildDetail('lockers'.tr, playgroundData['lockers']),
+                    child: _buildDetail(context, 'lockers'.tr, playgroundData['lockers']),
                   ),
                 ],
               ),
@@ -130,8 +138,7 @@ class PlaygroundDetailsPage extends StatelessWidget {
                             backgroundColor: MaterialStateProperty.all<Color>(
                               Color.fromARGB(255, 41, 169, 92),
                             ),
-                            minimumSize: MaterialStateProperty.all<Size>(
-                                Size(double.infinity, 55)),
+                            minimumSize: MaterialStateProperty.all<Size>(Size(double.infinity, 55)),
                             shape: MaterialStateProperty.all<OutlinedBorder>(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(24),
@@ -157,11 +164,14 @@ class PlaygroundDetailsPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => VodafonePlayground()),
-                  );
+                  // تأكد من أن playgroundData يحتوي على 'stadium_id'
+                  var stadiumId = playgroundData['stadium_id'];
+                  if (stadiumId != null) {
+                    _bookPlayground(context, stadiumId);
+                  } else {
+                    // Handle the null case, maybe show an error message
+                    print('Stadium ID is null');
+                  }
                 },
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(
@@ -190,7 +200,8 @@ class PlaygroundDetailsPage extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
+              )
+
             ),
             SizedBox(height: 16),
           ],
@@ -199,7 +210,15 @@ class PlaygroundDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDetail(String label, dynamic data) {
+  Widget _buildDetail(BuildContext context ,String label, dynamic data) {
+    var themeProvider = Provider.of<ThemeProvider>(context);
+
+    Color textColor = themeProvider.themeMode == ThemeMode.dark
+        ? Colors.grey[200]!
+        : Colors.black;
+    Color cardColor = themeProvider.themeMode == ThemeMode.dark
+        ? const Color.fromARGB(255, 0, 0, 0)!
+        : const Color.fromARGB(255, 238, 238, 238);
     if (data == null) {
       return Container();
     }
@@ -208,7 +227,7 @@ class PlaygroundDetailsPage extends StatelessWidget {
       padding: EdgeInsets.all(15),
       margin: EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -223,12 +242,12 @@ class PlaygroundDetailsPage extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color:textColor ),
           ),
           SizedBox(height: 16),
           Text(
             data,
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 16,color:textColor),
           ),
         ],
       ),
@@ -270,10 +289,21 @@ class PlaygroundDetailsPage extends StatelessWidget {
     }
   }
 
-  void _bookPlayground(BuildContext context) async {
+  void _bookPlayground(BuildContext context, String? stadiumId) {
+    if (stadiumId == null) {
+      // Handle the null case, maybe show an error message
+      print('Cannot navigate to booking page without a stadium ID');
+      return;
+    }
+
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => VodafonePlayground()),
+      MaterialPageRoute(
+        builder: (context) => VodafonePlayground(stadiumId: stadiumId),
+      ),
     );
   }
+
+
+
 }

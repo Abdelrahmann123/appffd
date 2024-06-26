@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled17/constants.dart';
@@ -102,18 +103,11 @@ class _HelpScreenState extends State<HelpScreen> {
                                       Text('backend: abdelwahab'),
                                       ElevatedButton.icon(
                                         onPressed: () async {
-                                          launchUrl(whatsapp1);
+                                          launchUrl(whatsapp4);
                                         },
-                                        icon: Image.asset(
-                                          'images/whatsapp.png',
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.06,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.06,
+                                        icon: FaIcon(
+                                          FontAwesomeIcons.whatsapp,
+                                          size: 32,
                                         ),
                                         label: Text('Contact via WhatsApp'),
                                       ),
@@ -152,18 +146,11 @@ class _HelpScreenState extends State<HelpScreen> {
                                       Text('frontend: abdulrahman'),
                                       ElevatedButton.icon(
                                         onPressed: () async {
-                                          launchUrl(whatsapp2);
+                                          launchUrl(whatsapp4);
                                         },
-                                        icon: Image.asset(
-                                          'images/whatsapp.png',
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.06,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.06,
+                                        icon: FaIcon(
+                                          FontAwesomeIcons.whatsapp,
+                                          size: 32,
                                         ),
                                         label: Text('Contact via WhatsApp'),
                                       ),
@@ -202,18 +189,11 @@ class _HelpScreenState extends State<HelpScreen> {
                                       Text('frontend: eman'),
                                       ElevatedButton.icon(
                                         onPressed: () async {
-                                          launchUrl(whatsapp3);
+                                          launchUrl(whatsapp4);
                                         },
-                                        icon: Image.asset(
-                                          'images/whatsapp.png',
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.06,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.06,
+                                        icon: FaIcon(
+                                          FontAwesomeIcons.whatsapp,
+                                          size: 32,
                                         ),
                                         label: Text('Contact via WhatsApp'),
                                       ),
@@ -254,16 +234,9 @@ class _HelpScreenState extends State<HelpScreen> {
                                         onPressed: () async {
                                           launchUrl(whatsapp4);
                                         },
-                                        icon: Image.asset(
-                                          'images/whatsapp.png',
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.06,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.06,
+                                        icon: FaIcon(
+                                          FontAwesomeIcons.whatsapp,
+                                          size: 32,
                                         ),
                                         label: Text('Contact via WhatsApp'),
                                       ),

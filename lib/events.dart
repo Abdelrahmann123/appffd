@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled17/main.dart';
+import 'package:untitled17/notif.dart';
 import 'package:untitled17/screens/history.dart';
 import 'package:untitled17/screens/userevent.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -32,6 +36,14 @@ class _EventCardState extends State<EventCard> {
 
   @override
   Widget build(BuildContext context) {
+    var themeProvider = Provider.of<ThemeProvider>(context);
+
+    Color textColor = themeProvider.themeMode == ThemeMode.dark
+        ? Colors.grey[200]!
+        : Colors.black;
+    Color cardColor = themeProvider.themeMode == ThemeMode.dark
+        ? const Color.fromARGB(255, 0, 0, 0)!
+        : const Color.fromARGB(255, 238, 238, 238);
     List<String>? images = (widget.data['images'] as List<dynamic>?)
         ?.map((e) => e as String)
         .toList();
@@ -45,21 +57,8 @@ class _EventCardState extends State<EventCard> {
           ),
         );
       },
-      child: Container(
-        padding: EdgeInsets.all(16),
+      child: Card(
         margin: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -81,50 +80,61 @@ class _EventCardState extends State<EventCard> {
                   },
                 ),
               ),
-            SizedBox(height: 12),
-            Text(
-              'Event Type: ${widget.data['eventType']}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Distance: ${widget.data['distance']}',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Fee: ${widget.data['fee']}',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Insurance: ${widget.data['insurance']}',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 12),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: isSubscribed
-                      ? null
-                      : () => _subscribeToEvent(context, widget.data),
-                  child: Text(
-                    isSubscribed ? 'Subscribed' : 'Subscribe',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 41, 169, 92),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'event_type'.tr + ' ${widget.data['eventType']}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
                     ),
                   ),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  'Subscribers: $subscribersCount',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ],
+                  SizedBox(height: 8),
+                  Text(
+                    'distance'.tr + ' ${widget.data['distance']}',
+                    style: TextStyle(fontSize: 16, color: textColor),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'fee'.tr + ' ${widget.data['fee']}',
+                    style: TextStyle(fontSize: 16, color: textColor),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'insurance'.tr + ' ${widget.data['insurance']}',
+                    style: TextStyle(fontSize: 16, color: textColor),
+                  ),
+                  SizedBox(height: 12),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: isSubscribed
+                            ? null
+                            : () => _subscribeToEvent(context, widget.data),
+                        child: Text(
+                          isSubscribed ? 'subscribed'.tr : 'subscribe'.tr,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color.fromARGB(255, 41, 169, 92),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        'subscribers'.tr + ' $subscribersCount',
+                        style: TextStyle(fontSize: 16, color: textColor),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -172,8 +182,8 @@ class _EventCardState extends State<EventCard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                _buildTextField('name'.tr, (value) => name = value),
-                _buildTextField('age'.tr, (value) => age = value),
+                _buildTextField(context, 'name'.tr, (value) => name = value),
+                _buildTextField(context, 'age'.tr, (value) => age = value),
                 DropdownButton(
                   hint: Text('Select Gender'),
                   value: gender,
@@ -187,7 +197,8 @@ class _EventCardState extends State<EventCard> {
                     );
                   }).toList(),
                 ),
-                _buildTextField('phone_number'.tr, (value) => phone = value),
+                _buildTextField(
+                    context, 'phone_number'.tr, (value) => phone = value),
               ],
             ),
           ),
@@ -248,16 +259,16 @@ class _EventCardState extends State<EventCard> {
 
                 // Check if the user is already subscribed to this event
                 final QuerySnapshot existingSubscription =
-                    await FirebaseFirestore.instance
-                        .collection('event_subscribers_${eventData['eventId']}')
-                        .where('userId', isEqualTo: userId)
-                        .get();
+                await FirebaseFirestore.instance
+                    .collection('event_subscribers_${eventData['eventId']}')
+                    .where('userId', isEqualTo: userId)
+                    .get();
 
                 if (existingSubscription.docs.isNotEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content:
-                          Text('You are already subscribed to this event!'),
+                      Text('You are already subscribed to this event!'),
                     ),
                   );
                   Navigator.of(context).pop(); // Close dialog
@@ -273,8 +284,8 @@ class _EventCardState extends State<EventCard> {
 
                   // Use event ID and user ID as a unique identifier for the subscription
                   final CollectionReference eventSubscribersCollection =
-                      FirebaseFirestore.instance.collection(
-                          'event_subscribers_${eventData['eventId']}');
+                  FirebaseFirestore.instance.collection(
+                      'event_subscribers_${eventData['eventId']}');
                   eventSubscribersCollection.add(subscriberData).then((_) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('successfully')),
@@ -287,7 +298,7 @@ class _EventCardState extends State<EventCard> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                           content:
-                              Text('Failed to subscribe to the event: $error')),
+                          Text('Failed to subscribe to the event: $error')),
                     );
                   });
 
@@ -312,12 +323,13 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
-  Widget _buildTextField(String label, Function(String) onChanged) {
+  Widget _buildTextField(
+      BuildContext context, String label, Function(String) onChanged) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
         onChanged: onChanged,
-        decoration: InputDecoration(labelText: label),
+        decoration: InputDecoration(labelText: label.tr),
       ),
     );
   }
@@ -367,8 +379,8 @@ class EventDetailsScreen extends StatelessWidget {
                               onTap: () {
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: (_) {
-                                  return DetailScreen(imageUrl: imageUrl);
-                                }));
+                                      return DetailScreen(imageUrl: imageUrl);
+                                    }));
                               },
                               child: Hero(
                                 tag: imageUrl,
@@ -387,28 +399,30 @@ class EventDetailsScreen extends StatelessWidget {
                       ),
                     ),
                   SizedBox(height: 20),
-                  _buildInfoCard(
+                  _buildInfoCard(context,
                       title: 'event_name'.tr, value: '${event['eventName']}'),
-                  _buildInfoCard(
+                  _buildInfoCard(context,
                       title: 'status'.tr, value: '${event['status']}'),
-                  _buildInfoCard(
+                  _buildInfoCard(context,
                       title: 'age_range'.tr,
                       value: '${event['ageRangeFrom']}-${event['ageRangeTo']}'),
-                  _buildInfoCard(
+                  _buildInfoCard(context,
                       title: 'description'.tr,
                       value: '${event['description']}'),
                   if (event['distance'] != null)
-                    _buildInfoCard(
+                    _buildInfoCard(context,
                         title: 'distance'.tr, value: '${event['distance']}'),
                   if (event['date'] != null)
-                    _buildInfoCard(title: 'date'.tr, value: '${event['date']}'),
-                  _buildInfoCard(
+                    _buildInfoCard(context,
+                        title: 'date'.tr, value: '${event['date']}'),
+                  _buildInfoCard(context,
                       title: 'event_type'.tr, value: '${event['eventType']}'),
-                  _buildInfoCard(title: 'fee'.tr, value: '${event['fee']}'),
+                  _buildInfoCard(context,
+                      title: 'fee'.tr, value: '${event['fee']}'),
                   if (event['haveBike'] != null)
-                    _buildInfoCard(
+                    _buildInfoCard(context,
                         title: 'have_bike'.tr, value: '${event['haveBike']}'),
-                  _buildInfoCard(
+                  _buildInfoCard(context,
                       title: 'insurance'.tr, value: '${event['insurance']}'),
                   SizedBox(height: 10),
                   // Add button to open Google Maps
@@ -418,23 +432,18 @@ class EventDetailsScreen extends StatelessWidget {
                       _launchMaps('${event['address']}');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Color.fromARGB(255, 41, 169, 92), // Background color
-
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(15), // Rounded corners
-                      ),
-                      padding: EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 24), // Button padding
+                      backgroundColor: Color.fromARGB(255, 41, 169, 92),
                     ),
-                    child: Text(
-                      'view_location_on_google_maps'.tr,
-                      style: TextStyle(
-                          fontSize: 16, // Text size
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white // Bold text
-                          ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.location_on,color: Colors.white,),
+                          SizedBox(width: 10),
+                          Text('show location in maps'.tr,style: TextStyle(color: Colors.white),),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -446,35 +455,32 @@ class EventDetailsScreen extends StatelessWidget {
     );
   }
 
-  // Function to build info card
-  Widget _buildInfoCard({required String title, required String value}) {
-    return Container(
-      padding: EdgeInsets.all(15),
-      margin: EdgeInsets.only(bottom: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            offset: Offset(0, 2),
-            blurRadius: 6,
-          ),
-        ],
+  Widget _buildInfoCard(BuildContext context, {required String title, required String value}) {
+    return Card(
+      elevation: 2,
+      margin: EdgeInsets.only(bottom: 20),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 5),
-          Text(
-            value,
-            style: TextStyle(fontSize: 16),
-          ),
-        ],
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 5),
+            Text(
+              value,
+              style: TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -483,25 +489,21 @@ class EventDetailsScreen extends StatelessWidget {
 class DetailScreen extends StatelessWidget {
   final String imageUrl;
 
-  DetailScreen({required this.imageUrl});
+  const DetailScreen({Key? key, required this.imageUrl}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GestureDetector(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        child: Center(
-          child: Hero(
-            tag: imageUrl,
-            child: Image.network(imageUrl),
-          ),
+      body: Center(
+        child: Hero(
+          tag: imageUrl,
+          child: Image.network(imageUrl),
         ),
       ),
     );
   }
 }
+
 
 class EventScreen extends StatelessWidget {
   @override
@@ -512,30 +514,46 @@ class EventScreen extends StatelessWidget {
         title: Text('events'.tr),
       ),
       body: LiquidPullToRefresh(
-        // هنا نقوم بتحديث البيانات عند سحب الشاشة لأسفل
         onRefresh: () async {
-          EventList();
-          final Map<String, dynamic> data;
-
-          // قم بإعادة تحميل البيانات من Firebase هنا
-          // يمكنك استدعاء الدوال اللازمة لإعادة تحميل البيانات
+          // عملية التحميل هنا
         },
         child: SafeArea(
           child: Stack(
             children: [
-              SingleChildScrollView(
-                physics: AlwaysScrollableScrollPhysics(), // تمكين السحب لأسفل
-                child: Container(
-                  padding: EdgeInsets.all(8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      SearchBar(),
-                      SizedBox(height: 20),
-                      EventList(),
-                    ],
-                  ),
-                ),
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('accepted_events')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: Lottie.asset(
+                        'images/animation/loading.json',
+                        height: 250,
+                        width: 250,
+                        repeat: true,
+                      ),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  final events = snapshot.data!.docs;
+                  return SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          SearchBar(),
+                          SizedBox(height: 20),
+                          EventList(),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
               Positioned(
                 child: CircularMenu(
@@ -571,11 +589,10 @@ class EventScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => HistoryPage()),
+                              builder: (context) => NotificationsPage()),
                         );
-                        // صفحة الايفينتات القديمه
                       },
-                    )
+                    ),
                   ],
                 ),
               ),
